@@ -1,0 +1,39 @@
+language: go
+
+go:
+  - "1.10"
+
+# Skip the install step. Don't `go get` dependencies. Only build with the code
+# in vendor/
+install: true
+
+
+# email me the results of the test runs.
+notifications:
+  email: true
+
+# Anything in before_script that returns a nonzero exit code will flunk the
+# build and immediately stop. It's sorta like having set -e enabled in bash.
+# Make sure golangci-lint is vendored by running
+#   dep ensure -add github.com/golangci/golangci-lint/cmd/golangci-lint
+# ...and adding this to your Gopkg.toml file.
+#   required = ["github.com/golangci/golangci-lint/cmd/golangci-lint"]
+#
+# before_script:
+# - go install ./vendor/github.com/golangci/golangci-lint/cmd/golangci-lint
+
+
+# With this configuration the build itself runs for every commit and PR
+# (which is nice, because we see if everything compiles fine), but the
+# deployment only happens when we actually push a tag as well containing
+# the version number of the new release.
+#
+# deploy:
+#   provider: releases
+#   skip_cleanup: true # Important, otherwise the build output would be purged.
+#   api_key:
+#     secure: lFGBaF...SJ1lDPDICY=
+#   file: bin/myawesomeapp
+#   on:
+#     repo: account/myawesomeproject
+#     tags: true # The deployment happens only if the commit has a tag.
