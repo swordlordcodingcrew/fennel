@@ -7,16 +7,14 @@ Fennel
 
 ## Introduction ##
 
-**Fennel** is a lightweight CardDAV / CalDAV server. It is written in Go and based on the proof of concept [Fennel.js](https://github.com/LordEidi/fennel) (which is written in JavaScript and running on NodeJS).
+**Fennel** is a lightweight CardDAV / CalDAV server. It is written in Go and based on the proof of concept [Fennel.js](https://github.com/LordEidi/fennel.js) (which is written in JavaScript and running on NodeJS).
 
-If you are looking for a lightweight CalDAV / CardDAV, **Fennel** might be for you:
+If you are looking for a lightweight CalDAV / CardDAV server, **Fennel** might be for you:
 
-- authentication is meant to be pluggable. While we concentrate on CourierAuth and .htaccess, you can add whatever can check a
-username and password.
+- hassle free installation. Drop a binary, start it, that's it.
+- authentication is meant to be pluggable. While we concentrate on CourierAuth and .htaccess, you can add whatever can check a username and a password.
 - authorisation is meant to be pluggable as well.
-- the data storage backend is meant to be pluggable as well. While we start with SQLite3, we do use an ORM. Whatever
-database can be used with *Gorm* can be used as storage backend for **Fennel**. You just have to change the settings
-accordingly (and probably re-compile).
+- the data storage backend is meant to be pluggable as well. While we start with SQLite3, we do use an ORM. Whatever database can be used with **Gorm** can be used as storage backend for **Fennel**.
 - and after all, **Fennel** is OSS and is written in Go. Whatever you do not like, you are free to replace / rewrite. Just respect the licence and give back.
 
 ## Status ##

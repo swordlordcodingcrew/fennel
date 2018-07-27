@@ -12,6 +12,24 @@ install: true
 notifications:
   email: true
 
+before_install:
+- find "${GOPATH%%:*}" -name '*.a' -delete
+- rm -rf "${GOPATH%%:*}/src/golang.org"
+- rm -rf "${GOPATH%%:*}/src/github.com"
+- go get golang.org/x/crypto/bcrypt
+- go get github.com/urfave/negroni
+- go get github.com/gorilla/mux
+- go get github.com/mattn/go-sqlite3
+- go get github.com/spf13/viper
+- go get github.com/jinzhu/gorm
+- go get github.com/spf13/cobra
+- go get github.com/satori/go.uuid
+- go get github.com/mattn/go-sqlite3
+- go get github.com/olekukonko/tablewriter
+- go get github.com/beevik/etree
+- go get github.com/jinzhu/now
+- go get github.com/mozillazg/request
+
 # Anything in before_script that returns a nonzero exit code will flunk the
 # build and immediately stop. It's sorta like having set -e enabled in bash.
 # Make sure golangci-lint is vendored by running
@@ -23,7 +41,7 @@ notifications:
 # - go install ./vendor/github.com/golangci/golangci-lint/cmd/golangci-lint
 
 script:
-  go test -v swordlord.com/fennelcli
+  go test -v swordlord.com/fenneld
 
 # With this configuration the build itself runs for every commit and PR
 # (which is nice, because we see if everything compiles fine), but the
