@@ -7,7 +7,7 @@ Fennel
 
 ## Introduction ##
 
-**Fennel** is a lightweight CardDAV / CalDAV server. It is written in Go and based on the proof of concept Fennel.js (which is written in JavaScript and running on NodeJS).
+**Fennel** is a lightweight CardDAV / CalDAV server. It is written in Go and based on the proof of concept [Fennel.js](https://github.com/LordEidi/fennel) (which is written in JavaScript and running on NodeJS).
 
 If you are looking for a lightweight CalDAV / CardDAV, **Fennel** might be for you:
 
