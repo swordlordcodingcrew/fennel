@@ -163,9 +163,19 @@ func GetMultistatusDoc(sURL string) (*etree.Document, *etree.Element) {
 	doc := etree.NewDocument()
 	doc.CreateProcInst("xml", `version="1.0" encoding="utf-8"`)
 
+	// <d:multistatus
+	// 	xmlns:d="DAV:"
+	// 	xmlns:s="http://sabredav.org/ns"
+	// 	xmlns:cal="urn:ietf:params:xml:ns:caldav"
+	// 	xmlns:cs="http://calendarserver.org/ns/"
+	// 	xmlns:card="urn:ietf:params:xml:ns:carddav">
 	ms := doc.CreateElement("multistatus")
 	ms.Space = "d"
 	ms.CreateAttr("xmlns:d", "DAV:")
+	ms.CreateAttr("xmlns:s", "http://sabredav.org/ns")
+	ms.CreateAttr("xmlns:cal", "urn:ietf:params:xml:ns:caldav")
+	ms.CreateAttr("xmlns:cs", "http://calendarserver.org/ns/:")
+	ms.CreateAttr("xmlns:card", "urn:ietf:params:xml:ns:carddav")
 
 	response := ms.CreateElement("response")
 	response.Space = "d"

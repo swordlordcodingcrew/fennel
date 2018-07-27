@@ -70,14 +70,16 @@ func main() {
 	gr.HandleFunc("/", handler.OnRoot).Methods("GET")
 
 	// 	crossroads.addRoute('/.well-known/:params*:', onHitWellKnown);
+	gr.HandleFunc("/.well-known", handler.OnWellKnownNoParam).Methods("GET")
 	gr.HandleFunc("/.well-known/{param}", handler.OnWellKnown).Methods("GET")
 
 	// crossroads.addRoute('/p/:params*:', onHitPrincipal);
 	sr_p := gr.PathPrefix("/p").Subrouter()
 	//sr_p.HandleFunc("", handler.onPrincipal).Methods("GET") -> should not happen?
 	sr_p.HandleFunc("/", principal.Options).Methods("OPTIONS")
-	sr_p.HandleFunc("", principal.Report).Methods("REPORT")
-	sr_p.HandleFunc("", principal.Propfind).Methods("PROPFIND")
+	sr_p.HandleFunc("/", principal.Report).Methods("REPORT")
+//	sr_p.HandleFunc("", principal.Propfind).Methods("PROPFIND")
+	sr_p.HandleFunc("/{user}/", principal.Propfind).Methods("PROPFIND")
 	sr_p.HandleFunc("", principal.Proppatch).Methods("PROPPATCH")
 
 	// crossroads.addRoute('/cal/:username:/:cal:/:params*:', onHitCalendar);

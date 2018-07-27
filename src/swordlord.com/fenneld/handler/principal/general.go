@@ -33,12 +33,13 @@ import (
 	"swordlord.com/fenneld/handler"
 	"fmt"
 	"github.com/beevik/etree"
+	"github.com/gorilla/mux"
 )
 
 func Propfind(w http.ResponseWriter, req *http.Request){
 
-	//vars := mux.Vars(req)
-	//sUser := vars["user"]
+	vars := mux.Vars(req)
+	sUser := vars["user"]
 
 	dRet, propstat := handler.GetMultistatusDoc(req.RequestURI)
 
@@ -62,7 +63,7 @@ func Propfind(w http.ResponseWriter, req *http.Request){
 	prop.Space = "d"
 
 	// let helper function fill prop element with requested props
-	fillPropfindResponse(prop, propsQuery)
+	fillPropfindResponse(prop, propsQuery, sUser)
 
 	// add status based on query
 	status := propstat.CreateElement("status")
@@ -113,7 +114,7 @@ func Options(w http.ResponseWriter, req *http.Request){
 	handler.RespondWithStandardOptions(w, http.StatusOK, "")
 }
 
-func fillPropfindResponse(node *etree.Element, props []*etree.Element) {
+func fillPropfindResponse(node *etree.Element, props []*etree.Element, sUser string) {
 
 	// TODO
 	token := ""
@@ -133,43 +134,111 @@ func fillPropfindResponse(node *etree.Element, props []*etree.Element) {
 			prop.SetText("https://swordlord.com/ns/sync/" + token)
 
 		case "supported-report-set":
-			//response += getSupportedReportSet(comm);
+			fillSupportedReportSet(node)
 
 		case "principal-URL":
 			//response += "<d:principal-URL><d:href>/p/" + comm.getUser().getUserName() + "/</d:href></d:principal-URL>\r\n";
+			prop := node.CreateElement("principal-URL")
+			prop.Space = "d"
+
+			href := prop.CreateElement("href")
+			href.Space = "d"
+
+			href.SetText("/p/" + sUser + "/")
 
 		case "displayname":
 			//response += "<d:displayname>" + comm.getUser().getUserName() + "</d:displayname>";
+			prop := node.CreateElement("displayname")
+			prop.Space = "d"
+			prop.SetText(sUser)
 
 		case "principal-collection-set":
 			//response += "<d:principal-collection-set><d:href>/p/</d:href></d:principal-collection-set>";
+			prop := node.CreateElement("principal-collection-set")
+			prop.Space = "d"
+
+			href := prop.CreateElement("href")
+			href.Space = "d"
+
+			href.SetText("/p/")
 
 		case "current-user-principal":
 			//response += "<d:current-user-principal><d:href>/p/" + comm.getUser().getUserName() + "/</d:href></d:current-user-principal>";
+			prop := node.CreateElement("current-user-principal")
+			prop.Space = "d"
+
+			href := prop.CreateElement("href")
+			href.Space = "d"
+
+			href.SetText("/p/" + sUser + "/")
 
 		case "calendar-home-set":
 			//response += "<cal:calendar-home-set><d:href>/cal/" + comm.getUser().getUserName() + "</d:href></cal:calendar-home-set>";
+			prop := node.CreateElement("calendar-home-set")
+			prop.Space = "cal"
+
+			href := prop.CreateElement("href")
+			href.Space = "d"
+
+			href.SetText("/cal/" + sUser + "/")
 
 		case "schedule-outbox-URL":
 			//response += "<cal:schedule-outbox-URL><d:href>/cal/" + comm.getUser().getUserName() + "/outbox</d:href></cal:schedule-outbox-URL>";
+			prop := node.CreateElement("schedule-outbox-URL")
+			prop.Space = "cal"
+
+			href := prop.CreateElement("href")
+			href.Space = "d"
+			href.SetText("/cal/" + sUser + "/outbox/")
 
 		case "calendar-user-address-set":
-			//response += getCalendarUserAddressSet(comm);
+			prop := node.CreateElement("calendar-user-address-set")
+			prop.Space = "cal"
+
+			href := prop.CreateElement("href")
+			href.Space = "d"
+			href.SetText("mailto:lord test at swordlord.com")
+
+			href2 := prop.CreateElement("href")
+			href2.Space = "d"
+			href2.SetText("/p/" + sUser + "/")
 
 		case "notification-URL":
 			//response += "<cs:notification-URL><d:href>/cal/" + comm.getUser().getUserName() + "/notifications/</d:href></cs:notification-URL>";
+			prop := node.CreateElement("notification-URL")
+			prop.Space = "cs"
+
+			href := prop.CreateElement("href")
+			href.Space = "d"
+
+			href.SetText("/cal/" + sUser + "/notifications/")
 
 		case "getcontenttype":
 			//response += "";
 
 		case "addressbook-home-set":
 			//response += "<card:addressbook-home-set><d:href>/card/" + comm.getUser().getUserName() + "/</d:href></card:addressbook-home-set>";
+			prop := node.CreateElement("addressbook-home-set")
+			prop.Space = "card"
+
+			href := prop.CreateElement("href")
+			href.Space = "d"
+
+			href.SetText("/card/" + sUser + "/")
 
 		case "directory-gateway":
 			//response += "";
 
 		case "email-address-set":
 			//response += "<cs:email-address-set><cs:email-address>lord test at swordlord.com</cs:email-address></cs:email-address-set>";
+			prop := node.CreateElement("email-address-set")
+			prop.Space = "cs"
+
+			ea := prop.CreateElement("email-address")
+			ea.Space = "cs"
+
+			// todo load user email from db
+			ea.SetText("lord test at swordlord.com")
 
 		case "resource-id":
 
@@ -179,4 +248,60 @@ func fillPropfindResponse(node *etree.Element, props []*etree.Element) {
 			}
 		}
 	}
+}
+
+func fillSupportedReportSet(node *etree.Element) {
+
+	srs := node.CreateElement("supported-report-set")
+	srs.Space = "d"
+
+	// ---
+	sr1 := srs.CreateElement("supported-report")
+	sr1.Space = "d"
+
+	r1 := sr1.CreateElement("report")
+	r1.Space = "d"
+
+	ep := r1.CreateElement("expand-property")
+	ep.Space = "d"
+
+	// ---
+	sr2 := srs.CreateElement("supported-report")
+	sr2.Space = "d"
+
+	r2 := sr2.CreateElement("report")
+	r2.Space = "d"
+
+	pps := r2.CreateElement("expand-property")
+	pps.Space = "d"
+
+	// ---
+	sr3 := srs.CreateElement("supported-report")
+	sr3.Space = "d"
+
+	r3 := sr3.CreateElement("report")
+	r3.Space = "d"
+
+	psps := r3.CreateElement("principal-search-property-set")
+	psps.Space = "d"
+
+	/*
+response += "        <d:supported-report-set>\r\n";
+response += "        	<d:supported-report>\r\n";
+response += "        		<d:report>\r\n";
+response += "        			<d:expand-property/>\r\n";
+response += "        		</d:report>\r\n";
+response += "        	</d:supported-report>\r\n";
+response += "        	<d:supported-report>\r\n";
+response += "        		<d:report>\r\n";
+response += "        			<d:principal-property-search/>\r\n";
+response += "        		</d:report>\r\n";
+response += "        	</d:supported-report>\r\n";
+response += "        	<d:supported-report>\r\n";
+response += "        		<d:report>\r\n";
+response += "        			<d:principal-search-property-set/>\r\n";
+response += "        		</d:report>\r\n";
+response += "        	</d:supported-report>\r\n";
+response += "        </d:supported-report-set>\r\n";
+*/
 }

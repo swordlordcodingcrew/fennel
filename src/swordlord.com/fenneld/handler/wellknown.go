@@ -52,3 +52,8 @@ func OnWellKnown(w http.ResponseWriter, req *http.Request){
 
 	}
 }
+
+func OnWellKnownNoParam(w http.ResponseWriter, req *http.Request){
+
+	RespondWithRedirect(w, req, "/p/")
+}
