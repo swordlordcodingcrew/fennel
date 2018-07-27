@@ -1,4 +1,4 @@
-package fennelcore
+package model
 /*-----------------------------------------------------------------------------
  **
  ** - Fennel -
@@ -28,69 +28,36 @@ package fennelcore
  ** LordCelery@swordlord.com
  **
 -----------------------------------------------------------------------------*/
+
 import (
-	"log"
 	"github.com/jinzhu/gorm"
-	"swordlord.com/fennelcore/db/model"
-	_ "github.com/jinzhu/gorm/dialects/sqlite"
+	"time"
 )
 
-var db gorm.DB
-
-//
-func InitDatabase() {
-
-	dialect := GetStringFromConfig("db.dialect")
-	args := GetStringFromConfig("db.args")
-	activateLog := GetBoolFromConfig("db.logmode")
-
-	database, err := gorm.Open(dialect, args)
-	if err != nil {
-		log.Fatalf("failed to connect database, %s", err)
-		panic("failed to connect database")
-	}
-
-	gorm.DefaultCallback.Update().Register("update_upd_dat", updateCreated)
-
-	db = *database
-
-	db.SingularTable(true)
-
-	if activateLog {
-
-		db.LogMode(true)
-	}
-
-	db.AutoMigrate(&model.User{})
-	db.AutoMigrate(&model.Group{})
-	db.AutoMigrate(&model.UserGroup{})
-	db.AutoMigrate(&model.Permission{})
-	db.AutoMigrate(&model.CAL{})
-	db.AutoMigrate(&model.ADB{})
-	db.AutoMigrate(&model.ICS{})
-	db.AutoMigrate(&model.VCARD{})
-
+type CAL struct {
+	Pkey    string `gorm:"primary_key"`
+	Owner	string `sql:"NOT NULL"`
+	Timezone string `sql:"NOT NULL"`
+	Order	uint `sql:"NOT NULL"`
+	FreeBusySet string `sql:"NOT NULL"`
+	SupportedCalComponent string `sql:"NOT NULL"`
+	Colour string `sql:"NOT NULL"`
+	Displayname string `sql:"NOT NULL"`
+	Synctoken	uint `sql:"NOT NULL; DEFAULT:0"`
+	CrtDat	time.Time `sql:"DEFAULT:current_timestamp"`
+	UpdDat	time.Time `sql:"DEFAULT:current_timestamp"`
 }
 
-func updateCreated(scope *gorm.Scope) {
+func (m *CAL) BeforeUpdate(scope *gorm.Scope) (err error) {
 
-	/*
-	log.Println("updatecreated")
-
-	if scope.HasColumn("UpdDat") {
-		scope.SetColumn("UpdDat", time.Now())
-	}
-	*/
+	scope.SetColumn("UpdDat", time.Now())
+	return  nil
 }
 
-//
-func CloseDB() {
+/*
+func (u *User) BeforeSave(scope *gorm.Scope) (err error) {
 
-	db.Close()
+	scope.SetColumn("upddat", time.Now())
+	return nil
 }
-
-//
-func GetDB() *gorm.DB {
-
-	return &db
-}
+*/

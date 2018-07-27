@@ -29,68 +29,16 @@ package fennelcore
  **
 -----------------------------------------------------------------------------*/
 import (
-	"log"
-	"github.com/jinzhu/gorm"
-	"swordlord.com/fennelcore/db/model"
-	_ "github.com/jinzhu/gorm/dialects/sqlite"
+	"os"
+	"github.com/olekukonko/tablewriter"
 )
 
-var db gorm.DB
+func WriteTable(header []string, data [][]string)  {
 
-//
-func InitDatabase() {
-
-	dialect := GetStringFromConfig("db.dialect")
-	args := GetStringFromConfig("db.args")
-	activateLog := GetBoolFromConfig("db.logmode")
-
-	database, err := gorm.Open(dialect, args)
-	if err != nil {
-		log.Fatalf("failed to connect database, %s", err)
-		panic("failed to connect database")
-	}
-
-	gorm.DefaultCallback.Update().Register("update_upd_dat", updateCreated)
-
-	db = *database
-
-	db.SingularTable(true)
-
-	if activateLog {
-
-		db.LogMode(true)
-	}
-
-	db.AutoMigrate(&model.User{})
-	db.AutoMigrate(&model.Group{})
-	db.AutoMigrate(&model.UserGroup{})
-	db.AutoMigrate(&model.Permission{})
-	db.AutoMigrate(&model.CAL{})
-	db.AutoMigrate(&model.ADB{})
-	db.AutoMigrate(&model.ICS{})
-	db.AutoMigrate(&model.VCARD{})
-
-}
-
-func updateCreated(scope *gorm.Scope) {
-
-	/*
-	log.Println("updatecreated")
-
-	if scope.HasColumn("UpdDat") {
-		scope.SetColumn("UpdDat", time.Now())
-	}
-	*/
-}
-
-//
-func CloseDB() {
-
-	db.Close()
-}
-
-//
-func GetDB() *gorm.DB {
-
-	return &db
+	table := tablewriter.NewWriter(os.Stdout)
+	table.SetHeader(header)
+	table.SetAutoMergeCells(true)
+	table.SetRowLine(true)
+	table.AppendBulk(data)
+	table.Render()
 }

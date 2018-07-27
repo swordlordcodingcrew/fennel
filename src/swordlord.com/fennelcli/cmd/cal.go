@@ -35,81 +35,62 @@ import (
 	"fmt"
 )
 
-// userCmd represents the domain command
-var userCmd = &cobra.Command{
-	Use:   "user",
-	Short: "Add, change and manage your users.",
-	Long: `Add, change and manage your users. Requires a subcommand.`,
+// calCmd represents the domain command
+var calCmd = &cobra.Command{
+	Use:   "cal",
+	Short: "Add, change and manage calendars.",
+	Long: `Add, change and manage calendars. Requires a subcommand.`,
 	RunE: nil,
 }
 
-var userListCmd = &cobra.Command{
+var calListCmd = &cobra.Command{
 	Use:   "list",
-	Short: "List all users.",
-	Long: `List all users.`,
-	RunE: ListUser,
+	Short: "List all calendars.",
+	Long: `List all calendars.`,
+	RunE: ListCal,
 }
 
-var userAddCmd = &cobra.Command{
-	Use:   "add [username] [password]",
-	Short: "Add new user to this instance of Fennel.",
-	Long: `Add new user to this instance of Fennel.`,
+var calAddCmd = &cobra.Command{
+	Use:   "add [username] [calendar]",
+	Short: "Add new  calendar for given user.",
+	Long: `Add new user to this instance of Wombag.`,
 	Args: cobra.ExactArgs(2),
-	RunE: AddUser,
+	RunE: AddCal,
 }
 
-var userUpdateCmd = &cobra.Command{
-	Use:   "update [userid] [password]",
-	Short: "Update the password of the user.",
-	Long: `Update the password of the user.`,
-	Args: cobra.ExactArgs(2),
-	RunE: UpdateUser,
-}
-
-var userDeleteCmd = &cobra.Command{
-	Use:   "delete [userid]",
-	Short: "Deletes a user and all of her devices.",
-	Long: `Deletes a user and all of his or her devices.`,
+var calDeleteCmd = &cobra.Command{
+	Use:   "delete [calendar]",
+	Short: "Deletes a calendar for given user.",
+	Long: `Deletes a calendar for given user.`,
 	Args: cobra.ExactArgs(1),
-	RunE: DeleteUser,
+	RunE: DeleteCal,
 }
 
-func ListUser(cmd *cobra.Command, args []string) error {
+func ListCal(cmd *cobra.Command, args []string) error {
 
-	tablemodule.ListUser()
+	tablemodule.ListCal()
 
 	return nil
 }
 
-func AddUser(cmd *cobra.Command, args []string) error {
+func AddCal(cmd *cobra.Command, args []string) error {
 
 	if len(args) < 2 {
 		return fmt.Errorf("command 'add' needs a user name and a password")
 	}
 
-	tablemodule.AddUser(args[0], args[1])
+	tablemodule.AddCal(args[0], args[1])
 
 	return nil
 }
 
-func UpdateUser(cmd *cobra.Command, args []string) error {
-
-	if len(args) < 2 {
-		return fmt.Errorf("command 'update' needs a user identification and a new password")
-	}
-
-	tablemodule.UpdateUser(args[0], args[1])
-
-	return nil
-}
-
-func DeleteUser(cmd *cobra.Command, args []string) error {
+func DeleteCal(cmd *cobra.Command, args []string) error {
 
 	if len(args) < 1 {
 		return fmt.Errorf("command 'delete' needs a user identification")
 	}
 
-	tablemodule.DeleteUser(args[0])
+	tablemodule.DeleteCal(args[0])
 
 	return nil
 }
@@ -119,7 +100,6 @@ func init() {
 
 	userCmd.AddCommand(userListCmd)
 	userCmd.AddCommand(userAddCmd)
-	userCmd.AddCommand(userUpdateCmd)
 	userCmd.AddCommand(userDeleteCmd)
 
 	// Here you will define your flags and configuration settings.
