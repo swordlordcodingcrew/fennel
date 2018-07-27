@@ -14,23 +14,22 @@ notifications:
   email: true
 
 before_install:
-- find "${GOPATH%%:*}" -name '*.a' -delete
-- rm -rf "${GOPATH%%:*}/src/golang.org"
-- rm -rf "${GOPATH%%:*}/src/github.com"
-- cd
-- go get -u -v golang.org/x/crypto/bcrypt
-- go get -u -v github.com/urfave/negroni
-- go get -u -v github.com/gorilla/mux
-- go get -u -v github.com/mattn/go-sqlite3
-- go get -u -v github.com/spf13/viper
-- go get -u -v github.com/jinzhu/gorm
-- go get -u -v github.com/spf13/cobra
-- go get -u -v github.com/satori/go.uuid
-- go get -u -v github.com/mattn/go-sqlite3
-- go get -u -v github.com/olekukonko/tablewriter
-- go get -u -v github.com/beevik/etree
-- go get -u -v github.com/jinzhu/now
-- go get -u -v github.com/mozillazg/request
+#  - find "${GOPATH%%:*}" -name '*.a' -delete
+#  - rm -rf "${GOPATH%%:*}/src/golang.org"
+#  - rm -rf "${GOPATH%%:*}/src/github.com"
+  - cd
+  - go get -u -v golang.org/x/crypto/bcrypt
+  - go get -u -v github.com/urfave/negroni
+  - go get -u -v github.com/gorilla/mux
+  - go get -u -v github.com/mattn/go-sqlite3
+  - go get -u -v github.com/spf13/viper
+  - go get -u -v github.com/jinzhu/gorm
+  - go get -u -v github.com/spf13/cobra
+  - go get -u -v github.com/satori/go.uuid
+  - go get -u -v github.com/mattn/go-sqlite3
+  - go get -u -v github.com/olekukonko/tablewriter
+  - go get -u -v github.com/beevik/etree
+  - go get -u -v github.com/jinzhu/now
 
 # Anything in before_script that returns a nonzero exit code will flunk the
 # build and immediately stop. It's sorta like having set -e enabled in bash.
@@ -42,8 +41,11 @@ before_install:
 # before_script:
 # - go install ./vendor/github.com/golangci/golangci-lint/cmd/golangci-lint
 
+install:
+  - go get -u -v github.com/mozillazg/request
+
 script:
-- make
+  - make
 #  go test -v swordlord.com/fenneld
 
 # With this configuration the build itself runs for every commit and PR
