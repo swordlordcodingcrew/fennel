@@ -1,11 +1,12 @@
 language: go
+sudo: false
 
 go:
   - "1.10"
 
 # Skip the install step. Don't `go get` dependencies. Only build with the code
 # in vendor/
-install: true
+#install: true
 
 
 # email me the results of the test runs.
