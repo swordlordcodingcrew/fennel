@@ -42,8 +42,8 @@ before_install:
 # before_script:
 # - go install ./vendor/github.com/golangci/golangci-lint/cmd/golangci-lint
 
-script:
-  go test -v swordlord.com/fenneld
+#script:
+#  go test -v swordlord.com/fenneld
 
 # With this configuration the build itself runs for every commit and PR
 # (which is nice, because we see if everything compiles fine), but the
