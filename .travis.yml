@@ -46,7 +46,9 @@ install:
 
 script:
   - cd $HOME/gopath/src/github.com/swordlordcodingcrew/fennel
-  - make
+  - GOPATH="$HOME/gopath/src/github.com/swordlordcodingcrew/fennel:$HOME/gopath/src/github.com/swordlordcodingcrew/fennel/vendor:/home/travis/gopath"
+  - go build -o fenneld_test -gcflags "all=-N -l" swordlord.com/fenneld
+#  - make
 #  go test -v swordlord.com/fenneld
 
 # With this configuration the build itself runs for every commit and PR
