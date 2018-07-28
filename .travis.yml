@@ -68,7 +68,7 @@ script:
 #     repo: account/myawesomeproject
 #     tags: true # The deployment happens only if the commit has a tag.
 
-ddeploy:
+deploy:
   provider: releases
   file: build/*
   api_key:
