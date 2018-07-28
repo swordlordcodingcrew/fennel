@@ -79,7 +79,8 @@ func AddCal(cmd *cobra.Command, args []string) error {
 		return fmt.Errorf("command 'add' needs a user name and a password")
 	}
 
-	tablemodule.AddCal(args[0], args[1])
+	// TODO
+	//tablemodule.AddCal(args[0], args[1])
 
 	return nil
 }
