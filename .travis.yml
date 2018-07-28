@@ -48,7 +48,7 @@ script:
   - cd $HOME/gopath/src/github.com/swordlordcodingcrew/fennel
   - mkdir build
   - GOPATH="$HOME/gopath/src/github.com/swordlordcodingcrew/fennel:$HOME/gopath/src/github.com/swordlordcodingcrew/fennel/vendor:/home/travis/gopath"
-  - go build -o build/fenneld -gcflags "all=-N -l" swordlord.com/fenneld
+  - go build -v -o build/fenneld -gcflags "all=-N -l" swordlord.com/fenneld
 #  - make
 #  go test -v swordlord.com/fenneld
 
@@ -68,8 +68,6 @@ script:
 #     tags: true # The deployment happens only if the commit has a tag.
 
 deploy:
-  provider: pages
-  local-dir: build
-  github-token: $GithubRepoToken
-  keep-history: false
-  target-branch: master
+  provider: releases
+  file: build/*
+  skip_cleanup: true
