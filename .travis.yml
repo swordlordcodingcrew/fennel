@@ -45,6 +45,7 @@ install:
   - go get -u -v github.com/mozillazg/request
 
 script:
+  - cd $HOME/gopath/src/github.com/swordlordcodingcrew/fennel
   - make
 #  go test -v swordlord.com/fenneld
 
