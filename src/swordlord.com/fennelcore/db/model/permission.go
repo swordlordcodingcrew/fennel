@@ -35,11 +35,12 @@ import (
 )
 
 type Permission struct {
-	Pkey    string `gorm:"primary_key"`
-	GroupId	string `sql:"NOT NULL"`
+	Pkey    	string `gorm:"primary_key"`
+	GroupId		string `sql:"NOT NULL"`
 	Description	string
-	CrtDat	time.Time `sql:"DEFAULT:current_timestamp"`
-	UpdDat	time.Time `sql:"DEFAULT:current_timestamp"`
+	Permission 	string
+	CrtDat		time.Time `sql:"DEFAULT:current_timestamp"`
+	UpdDat		time.Time `sql:"DEFAULT:current_timestamp"`
 }
 
 func (m *Permission) BeforeUpdate(scope *gorm.Scope) (err error) {

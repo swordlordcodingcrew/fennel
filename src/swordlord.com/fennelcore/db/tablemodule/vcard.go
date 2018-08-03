@@ -37,13 +37,14 @@ import (
 
 func ListVCardsPerAddressbook(addressbook string) {
 
-	db := fcdb.GetDB()
-
-	var rows []*model.VCARD
-
-	db.Find(&rows)
-
 	var vcard [][]string
+
+	err, rows := FindVcardByAddressbook(addressbook)
+	if err != nil {
+
+		log.Printf("Error with VCARD in Addressbook %q: %s\n", addressbook, err)
+		return
+	}
 
 	for _, rec := range rows {
 
@@ -53,7 +54,7 @@ func ListVCardsPerAddressbook(addressbook string) {
 	fcdb.WriteTable([]string{"Id", "CrtDat", "UpdDat"}, vcard)
 }
 
-func AddVCard(vcardId string, owner string, addressbookId string, content string) (model.VCARD, error) {
+func AddVCard(vcardId string, owner string, addressbookId string, isGroup bool, content string) (model.VCARD, error) {
 
 	db := fcdb.GetDB()
 
@@ -62,6 +63,7 @@ func AddVCard(vcardId string, owner string, addressbookId string, content string
 	vcard.AddressbookId = addressbookId
 	vcard.Owner = owner
 	vcard.Content = content
+	vcard.IsGroup = isGroup
 
 	retDB := db.Create(&vcard)
 
@@ -95,7 +97,7 @@ func GetVCard(vcardId string) (model.VCARD, error) {
 	return vcard, nil
 }
 
-func FindVcardByAddressbook(addressbookID string) ([]*model.VCARD, error)  {
+func FindVcardByAddressbook(addressbookID string) (error, []*model.VCARD)  {
 
 	var vcard model.VCARD
 
@@ -113,6 +115,28 @@ func FindVcardByAddressbook(addressbookID string) ([]*model.VCARD, error)  {
 
 	return rows, nil
 }
+
+func FindVCardsFromAddressbook(adbID string, vcardIDs []string) (error, []*model.VCARD) {
+
+	var vcard model.VCARD
+
+	db := fcdb.GetDB()
+	db = db.Model(vcard)
+
+	db = db.Where("pkey in (?)", vcardIDs).Where("addressbook_id = ?", adbID)
+
+	var rows []*model.VCARD
+
+	retDB := db.Find(&rows)
+
+	if retDB.Error != nil {
+		log.Printf("Error with VCARD from Addressbook %s: %s\n", adbID, retDB.Error)
+		return retDB.Error, rows
+	}
+
+	return nil, rows
+}
+
 
 func DeleteVCard(vcardId string) error {
 

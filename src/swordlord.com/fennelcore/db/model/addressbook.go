@@ -38,7 +38,7 @@ type ADB struct {
 	Pkey    	string `gorm:"primary_key"`
 	Owner		string `sql:"NOT NULL"`
 	Name		string `sql:"NOT NULL"`
-	Synctoken	uint `sql:"NOT NULL; DEFAULT:0"`
+	Synctoken	int `sql:"NOT NULL; DEFAULT:0"`
 	CrtDat		time.Time `sql:"DEFAULT:current_timestamp"`
 	UpdDat		time.Time `sql:"DEFAULT:current_timestamp"`
 }

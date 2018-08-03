@@ -105,17 +105,22 @@ func WriteStandardConfig() (error) {
 
 var defaultConfig = []byte(`
 {
-  "env": "dev",
+    "env": "dev",
   "www": {
       "host": "127.0.0.1",
-      "port": "8081"
+      "port": "8888"
+  },
+  "auth": {
+    "module": "htpasswd",
+    "file": "demouser.htpasswd"
   },
   "folder": {
     "templates": "templates"
   },
   "db": {
     "dialect": "sqlite3",
-    "args": "fennel.db"
+    "args": "fennel.db",
+    "logmode": "true"
   }
 }
 `)

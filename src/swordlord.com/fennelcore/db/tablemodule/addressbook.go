@@ -77,6 +77,27 @@ func AddAddressbook(name string, password string, user string) (model.ADB, error
 	return adb, nil
 }
 
+func GetAddressbooksFromUser(user string) (error, []*model.ADB) {
+
+	var adb model.ADB
+
+	db := fcdb.GetDB()
+	db = db.Model(adb)
+
+	db = db.Where("owner = ?", user)
+
+	var rows []*model.ADB
+
+	retDB := db.Find(&rows)
+
+	if retDB.Error != nil {
+		log.Printf("Error with ADB from User %q: %s\n", user, retDB.Error)
+		return retDB.Error, rows
+	}
+
+	return nil, rows
+}
+
 func UpdateAddressbook(name string, password string) error {
 
 	db := fcdb.GetDB()
