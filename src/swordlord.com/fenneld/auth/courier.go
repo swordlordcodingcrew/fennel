@@ -1,4 +1,4 @@
-package principal
+package auth
 /*-----------------------------------------------------------------------------
  **
  ** - Fennel -
@@ -28,38 +28,44 @@ package principal
  ** LordCelery@swordlord.com
  **
 -----------------------------------------------------------------------------*/
+
 import (
-	"net/http"
-	"swordlord.com/fenneld/handler"
-	)
+									"errors"
+)
 
-// TODO: handle as expected, this is a cheap workaround
-func Proppatch(w http.ResponseWriter, req *http.Request){
 
-	dRet, propstat := handler.GetMultistatusDoc(req.RequestURI)
+func ValidateCourier(uid string, pwd string) (error, string) {
 
-	// create new element to store response in
-	prop := propstat.CreateElement("prop")
-	prop.Space = "d"
-
-	davd := prop.CreateElement("default-alarm-vevent-date")
-	davd.Space = "cal"
-
-	// add status
-	status := propstat.CreateElement("status")
-	status.Space = "d"
-	status.SetText("HTTP/1.1 403 Forbidden")
-
-	handler.SendETreeDocument(w, http.StatusMultiStatus, dRet)
-}
-
-func Report(w http.ResponseWriter, req *http.Request){
-
-	handler.RespondWithMessage(w, http.StatusOK, "Report not implemented yet")
+	return errors.New("Method unknown"), ""
 
 }
 
-func Options(w http.ResponseWriter, req *http.Request){
+/*
+function checkCourier(username, password, callback)
+{
+    log.debug("Authenticating user with courier method.");
 
-	handler.RespondWithStandardOptions(w, http.StatusOK, "")
+    var socketPath = config.auth_method_courier_socket;
+    log.debug("Using socket: " + socketPath);
+
+    var client = net.createConnection({path: socketPath});
+
+    client.on("connect", function() {
+        //console.log('connect');
+        var payload = 'service\nlogin\n' + username + '\n' + password;
+        client.write('AUTH ' + payload.length + '\n' + payload);
+    });
+
+    var response = "";
+
+    client.on("data", function(data) {
+        //console.log('data: ' + data);
+        response += data.toString();
+    });
+
+    client.on('end', function() {
+        var result = response.indexOf('FAIL', 0);
+        callback(result < 0);
+    });
 }
+*/

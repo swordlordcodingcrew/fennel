@@ -1,4 +1,15 @@
 package auth
+
+import (
+	"github.com/urfave/negroni"
+	"net/http"
+	"strings"
+	"encoding/base64"
+				"github.com/pkg/errors"
+	"swordlord.com/fenneld/handler"
+	"swordlord.com/fennelcore"
+)
+
 /*-----------------------------------------------------------------------------
  **
  ** - Fennel -
@@ -29,3 +40,84 @@ package auth
  **
 -----------------------------------------------------------------------------*/
 
+func NewFennelAuthentication() negroni.HandlerFunc {
+
+	return func(w http.ResponseWriter, req *http.Request, next http.HandlerFunc) {
+
+		// do not manage service detection
+		if strings.HasPrefix(req.RequestURI, "/.well-known") {
+			next(w, req)
+			return
+		}
+
+		authHeader := req.Header.Get("Authorization")
+
+		// not authenticated
+		if len(authHeader) == 0 {
+
+			handler.RespondWithUnauthenticated(w)
+			return
+		}
+
+		err, uid, pwd := parseAuthHeader(authHeader)
+		if err != nil {
+
+			handler.RespondWithUnauthenticated(w)
+			return
+		}
+
+		err, roles := ValidateUser(uid, pwd)
+		if err != nil {
+
+			handler.RespondWithUnauthenticated(w)
+			return
+		}
+
+		println(roles)
+
+		// TODO set header / env var when authenticated
+
+
+		next(w, req)
+	}
+}
+
+func ValidateUser(uid string, pwd string) (error, string) {
+
+	authModule := fennelcore.GetStringFromConfig("auth.module")
+
+	switch authModule {
+
+	case "htpasswd":
+		return ValidateUserHTPasswd(uid, pwd)
+	case "ldap":
+	case "db":
+	case "courier":
+		return ValidateCourier(uid, pwd)
+	default:
+		return errors.New("Authentication Module unknown, can't authenticate"), ""
+	}
+
+	return errors.New("Authentication Module unknown, can't authenticate"), ""
+}
+
+func parseAuthHeader(header string) (error, string, string) {
+
+	aHeader := strings.SplitN(header, " ", 2)
+
+	if len(aHeader) != 2 || aHeader[0] != "Basic" {
+		return errors.New("There is no Basic Header, or some other Header problem"), "", ""
+	}
+
+	sDecoded, err := base64.StdEncoding.DecodeString(aHeader[1])
+	if err != nil {
+		return errors.New("Can't decrypt BASE64"), "", ""
+	}
+
+	aUidPwd := strings.SplitN(string(sDecoded), ":", 2)
+	if len(aUidPwd) != 2 {
+		return errors.New("Can't split to username:password"), "", ""
+	}
+
+	return nil, aUidPwd[0], aUidPwd[1]
+}

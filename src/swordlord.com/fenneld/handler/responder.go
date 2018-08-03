@@ -97,9 +97,6 @@ func SetStandardHTMLHeader(w http.ResponseWriter) {
 
 func RespondWithRedirect(w http.ResponseWriter, req *http.Request, uri string){
 
-	//w.WriteHeader(http.StatusFound)
-	//w.Header().Set("Content-Type", "text/html; charset=utf-8")
-	//fmt.Fprintf(w, message + "\n")
 	http.Redirect(w, req, uri, http.StatusFound)
 }
 
@@ -123,6 +120,13 @@ func RespondWithVCARD(w http.ResponseWriter, status int, vcard string){
 	w.WriteHeader(status)
 	w.Header().Set("Content-Type", "text/vcard; charset=utf-8")
 	fmt.Fprintf(w, vcard + "\n")
+}
+
+func RespondWithUnauthenticated(w http.ResponseWriter){
+
+	w.Header().Set("WWW-Authenticate", "Basic realm=\"Fennel\"")
+	w.WriteHeader(http.StatusUnauthorized)
+	fmt.Fprintf(w, "Not authorized\n")
 }
 
 func RespondWithStandardOptions(w http.ResponseWriter, status int, message string) {
@@ -160,22 +164,7 @@ func SendETreeDocument(w http.ResponseWriter, status int, dRet *etree.Document) 
 
 func GetMultistatusDoc(sURL string) (*etree.Document, *etree.Element) {
 
-	doc := etree.NewDocument()
-	doc.CreateProcInst("xml", `version="1.0" encoding="utf-8"`)
-
-	// <d:multistatus
-	// 	xmlns:d="DAV:"
-	// 	xmlns:s="http://sabredav.org/ns"
-	// 	xmlns:cal="urn:ietf:params:xml:ns:caldav"
-	// 	xmlns:cs="http://calendarserver.org/ns/"
-	// 	xmlns:card="urn:ietf:params:xml:ns:carddav">
-	ms := doc.CreateElement("multistatus")
-	ms.Space = "d"
-	ms.CreateAttr("xmlns:d", "DAV:")
-	ms.CreateAttr("xmlns:s", "http://sabredav.org/ns")
-	ms.CreateAttr("xmlns:cal", "urn:ietf:params:xml:ns:caldav")
-	ms.CreateAttr("xmlns:cs", "http://calendarserver.org/ns/:")
-	ms.CreateAttr("xmlns:card", "urn:ietf:params:xml:ns:carddav")
+	doc, ms := GetMultistatusDocWOResponseTag()
 
 	response := ms.CreateElement("response")
 	response.Space = "d"
@@ -198,9 +187,36 @@ func GetMultistatusDocWOResponseTag() (*etree.Document, *etree.Element) {
 
 	ms := doc.CreateElement("multistatus")
 	ms.Space = "d"
+
+	/*
+	<d:multistatus xmlns:d="DAV:"
+				xmlns:s="http://swordlord.com/ns"
+				xmlns:cal="urn:ietf:params:xml:ns:caldav"
+				xmlns:cs="http://calendarserver.org/ns/"
+				xmlns:card="urn:ietf:params:xml:ns:carddav">
+	  <d:response>
+		<d:href>/card/user/</d:href>
+		<d:propstat>
+		  <d:prop>
+	*/
 	ms.CreateAttr("xmlns:d", "DAV:")
+	ms.CreateAttr("xmlns:d", "DAV:")
+	ms.CreateAttr("xmlns:s", "http://swordlord.com/ns")
+	ms.CreateAttr("xmlns:cal", "urn:ietf:params:xml:ns:caldav")
+	ms.CreateAttr("xmlns:cs", "http://calendarserver.org/ns/")
+	ms.CreateAttr("xmlns:card", "urn:ietf:params:xml:ns:carddav")
 
 	return doc, ms
+}
+
+
+func AddResponseWStatusToMultistat(ms *etree.Element, uri string, httpStatus int) *etree.Element {
+
+	propstat := AddResponseToMultistat(ms, uri)
+
+	AddStatusToPropstat(httpStatus, propstat)
+
+	return propstat
 }
 
 func AddResponseToMultistat(ms *etree.Element, uri string) *etree.Element {

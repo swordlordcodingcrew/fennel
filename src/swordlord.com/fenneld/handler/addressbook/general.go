@@ -37,29 +37,17 @@ import (
 	"swordlord.com/fennelcore/db/tablemodule"
 	"fmt"
 	"log"
+	"strings"
 )
-
-func Propfind(w http.ResponseWriter, req *http.Request){
-
-	handler.RespondWithMessage(w, http.StatusOK, "Not implemented yet")
-}
 
 func Proppatch(w http.ResponseWriter, req *http.Request){
 
 	handler.RespondWithMessage(w, http.StatusOK, "Not implemented yet")
-
-}
-
-func Report(w http.ResponseWriter, req *http.Request){
-
-	handler.RespondWithMessage(w, http.StatusOK, "Not implemented yet")
-
 }
 
 func Options(w http.ResponseWriter, req *http.Request){
 
 	handler.RespondWithStandardOptions(w, http.StatusOK, "")
-
 }
 
 func Put(w http.ResponseWriter, req *http.Request){
@@ -71,7 +59,9 @@ func Put(w http.ResponseWriter, req *http.Request){
 
 	bodyBuffer, _ := ioutil.ReadAll(req.Body)
 
-	vcard, err := tablemodule.AddVCard(sCard, sUser, sAB, string(bodyBuffer))
+	isGroup := strings.Contains(string(bodyBuffer), "X-ADDRESSBOOKSERVER-KIND:group")
+
+	vcard, err := tablemodule.AddVCard(sCard, sUser, sAB, isGroup, string(bodyBuffer))
 	if err != nil {
 
 		handler.RespondWithMessage(w, http.StatusPreconditionFailed, err.Error())
@@ -84,8 +74,6 @@ func Put(w http.ResponseWriter, req *http.Request){
 func Get(w http.ResponseWriter, req *http.Request){
 
 	vars := mux.Vars(req)
-	//sUser := vars["user"]
-	//sCal := vars["calendar"]
 	sCard := vars["card"]
 
 	vcard, err := tablemodule.GetVCard(sCard)
@@ -123,5 +111,4 @@ func Delete(w http.ResponseWriter, req *http.Request){
 func Move(w http.ResponseWriter, req *http.Request){
 
 	handler.RespondWithMessage(w, http.StatusOK, "Not implemented yet")
-
 }

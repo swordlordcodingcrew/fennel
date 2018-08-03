@@ -38,6 +38,8 @@ import (
 	"swordlord.com/fenneld/handler/principal"
 	"swordlord.com/fenneld/handler/calendar"
 	"swordlord.com/fenneld/handler/addressbook"
+	"net/http/pprof"
+	"swordlord.com/fenneld/auth"
 )
 
 func main() {
@@ -52,12 +54,11 @@ func main() {
 
 	env := fennelcore.GetEnv()
 
-	// TODO add authentication
-	// n := negroni.New(negroni.NewRecovery(), negroni.HandlerFunc(auth.OAuthMiddleware), negroni.NewLogger())
-	n := negroni.New(negroni.NewRecovery(), negroni.NewLogger())
+	n := negroni.New(negroni.NewRecovery(), negroni.NewLogger(), auth.NewFennelAuthentication())
 
 	gr := mux.NewRouter().StrictSlash(false)
 
+	// TODO add handlers
 	//gr.NotFoundHandler
 	//gr.MethodNotAllowedHandler
 
@@ -66,23 +67,21 @@ func main() {
 	// TODO: parameters in URLs need regular expressions to make sure no unwanted char is used
 
 	// what to do when a user hits the root
-	// 	crossroads.addRoute('/', onHitRoot);
 	gr.HandleFunc("/", handler.OnRoot).Methods("GET")
 
-	// 	crossroads.addRoute('/.well-known/:params*:', onHitWellKnown);
+	// ******************* SERVICE DISCOVERY
 	gr.HandleFunc("/.well-known", handler.OnWellKnownNoParam).Methods("GET")
-	gr.HandleFunc("/.well-known/{param}", handler.OnWellKnown).Methods("GET")
+	gr.HandleFunc("/.well-known/{param:[0-9a-z-]+}", handler.OnWellKnown).Methods("GET")
 
-	// crossroads.addRoute('/p/:params*:', onHitPrincipal);
+	// ******************* PRINCIPAL
 	sr_p := gr.PathPrefix("/p").Subrouter()
 	//sr_p.HandleFunc("", handler.onPrincipal).Methods("GET") -> should not happen?
 	sr_p.HandleFunc("/", principal.Options).Methods("OPTIONS")
 	sr_p.HandleFunc("/", principal.Report).Methods("REPORT")
-//	sr_p.HandleFunc("", principal.Propfind).Methods("PROPFIND")
-	sr_p.HandleFunc("/{user}/", principal.Propfind).Methods("PROPFIND")
+	sr_p.HandleFunc("/{user:[0-9a-z-]+}/", principal.Propfind).Methods("PROPFIND")
 	sr_p.HandleFunc("", principal.Proppatch).Methods("PROPPATCH")
 
-	// crossroads.addRoute('/cal/:username:/:cal:/:params*:', onHitCalendar);
+	// ******************* CALENDAR
 	sr_cal := gr.PathPrefix("/cal").Subrouter()
 	sr_cal.HandleFunc("/{user}/", calendar.Options).Methods("OPTIONS")
 	sr_cal.HandleFunc("/{user}/{calendar}/", calendar.MakeCalendar).Methods("MKCALENDAR")
@@ -97,64 +96,43 @@ func main() {
 
 	sr_cal.HandleFunc("/{user}/{calendar}", calendar.Report).Methods("REPORT")
 
-	// crossroads.addRoute('/card/:username:/:card:/:params*:', onHitCard);
+	// ******************* ADDRESSBOOK
 	sr_card := gr.PathPrefix("/card").Subrouter()
-	sr_card.HandleFunc("/{user}/{addressbook}/", addressbook.Options).Methods("OPTIONS")
-	sr_card.HandleFunc("/{user}/{addressbook}/", addressbook.Report).Methods("REPORT")
-	sr_card.HandleFunc("/{user}/{addressbook}/{card}.vcf", addressbook.Put).Methods("PUT")
+	sr_card.HandleFunc("/{user}/", addressbook.Propfind).Methods("PROPFIND")
+	sr_card.HandleFunc("/{user}/{addressbook:[0-9a-z-]+}/", addressbook.Options).Methods("OPTIONS")
+	sr_card.HandleFunc("/{user}/{addressbook:[0-9a-z-]+}/", addressbook.Report).Methods("REPORT")
+	sr_card.HandleFunc("/{user}/{addressbook:[0-9a-z-]+}/{card:[0-9a-z-]+}.vcf", addressbook.Put).Methods("PUT")
 
-	// crossroads.bypassed.add(onBypass); -> 404
-	/*
-	api.HandleFunc("/entries{ext:(?:.json)?}", handler.OnRetrieveEntries).Methods("GET")
-	//api.HandleFunc("/entries.json", handler.OnRetrieveEntries).Methods("GET")
-	api.HandleFunc("/entries{ext:(?:.json)?}", handler.OnCreateEntry).Methods("POST")
-	//api.HandleFunc("/entries.json", handler.OnCreateEntry).Methods("POST")
-	api.HandleFunc("/entries/{entry:[0-9]+}{ext:(?:.json)?}", handler.OnDeleteEntry).Methods("DELETE")
-	api.HandleFunc("/entries/{entry:[0-9]+}/export{ext:(?:.json)?}", handler.OnGetEntryFormatted).Methods("GET")
-	api.HandleFunc("/entries/{entry:[0-9]+}/tags/{tag:[0-9]+}{ext:(?:.json)?}", handler.OnDeleteTagOnEntry).Methods("DELETE")
-	api.HandleFunc("/tags{ext:(?:.json|.txt|.xml)?}", handler.OnRetrieveAllTags).Methods("GET")
-	api.HandleFunc("/version{ext:(?:.json|.txt|.xml|.html)?}", handler.OnRetrieveVersionNumber).Methods("GET")
-	*/
-
+	// get settings
 	host := fennelcore.GetStringFromConfig("www.host")
 	port := fennelcore.GetStringFromConfig("www.port")
 
+	// check if user wants to mount debug urls
 	if env == "dev" {
 
 		// give the user the possibility to trace and profile the app
-		/*
-		TODO RE ADD
-		r.GET("/debug/pprof/block", pprofHandler(pprof.Index))
-		r.GET("/debug/pprof/heap", pprofHandler(pprof.Index))
-		r.GET("/debug/pprof/profile", pprofHandler(pprof.Profile))
-		r.POST("/debug/pprof/symbol", pprofHandler(pprof.Symbol))
-		r.GET("/debug/pprof/symbol", pprofHandler(pprof.Symbol))
-		r.GET("/debug/pprof/trace", pprofHandler(pprof.Trace))
-		*/
+		sr_debug := gr.PathPrefix("/debug/pprof").Subrouter()
+		sr_debug.HandleFunc("/block", pprof.Index).Methods("GET")
+		sr_debug.HandleFunc("/heap", pprof.Index).Methods("GET")
+		sr_debug.HandleFunc("/profile", pprof.Profile).Methods("GET")
+		sr_debug.HandleFunc("/symbol", pprof.Symbol).Methods("POST")
+		sr_debug.HandleFunc("/symbol", pprof.Symbol).Methods("GET")
+		sr_debug.HandleFunc("/trace", pprof.Trace).Methods("GET")
 
 		// give the user some hints on what URLs she could test
 		fmt.Printf("fenneld running on %v:%v\n", host, port)
 
-		// TODO, fix URLs
-		fmt.Printf("** get token  : curl -X POST 'http://%s:%s/oauth/v2/token' --data 'client_id=1&client_secret=secret&grant_type=password&password=pwd&username=uid' -H 'Content-Type:application/x-www-form-urlencoded'\n", host, port)
-		fmt.Printf("** add entry  : curl -X POST 'http://%s:%s/api/entries/' --data 'url=http://test' -H 'Content-Type:application/x-www-form-urlencoded' -H 'Authorization: Bearer (access token)'\n", host, port)
-		fmt.Printf("** get entries: curl -X GET 'http://%s:%s/api/entries/?page=1&perPage=20' -H 'Authorization: Bearer (access token)\n", host, port)
-		fmt.Printf("** get entry  : curl -X GET 'http://%s:%s/api/entries/1' -H 'Authorization: Bearer (access token)\n", host, port)
-		fmt.Printf("** patch entry: curl -X PATCH 'http://%s:%s/api/entries/1' --data 'archive=1&starred=1' -H 'Content-Type:application/x-www-form-urlencoded' -H 'Authorization: Bearer (access token)\n", host, port)
+		fmt.Printf("** get  options : curl -X OPTIONS 'http://%s:%s/cal/demo/'\n\n", host, port)
 
+		fmt.Printf("** get  block  	: go tool pprof 'http://%s:%s/debug/pprof/block'\n", host, port)
+		fmt.Printf("** get  heap  	: go tool pprof 'http://%s:%s/debug/pprof/heap'\n", host, port)
+		fmt.Printf("** get  profile : go tool pprof 'http://%s:%s/debug/pprof/profile'\n", host, port)
+		fmt.Printf("** post symbol  : go tool pprof 'http://%s:%s/debug/pprof/symbol'\n", host, port)
+		fmt.Printf("** get  symbol  : go tool pprof 'http://%s:%s/debug/pprof/symbol'\n", host, port)
+		fmt.Printf("** get  trace  	: go tool pprof 'http://%s:%s/debug/pprof/trace'\n", host, port)
 	}
 
 	// have fun with fennel
 	// http.ListenAndServe(host + ":" + port, n)
 	n.Run(host + ":" + port)
 }
-
-/*
-func pprofHandler(h http.HandlerFunc) negroni.HandlerFunc {
-handler := http.HandlerFunc(h)
-return func(c *gin.Context) {
-	handler.ServeHTTP(c.Writer, c.Request)
-}
-
-}
-*/
