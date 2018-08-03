@@ -110,10 +110,10 @@ func FindVcardByAddressbook(addressbookID string) (error, []*model.VCARD)  {
 
 	if retDB.Error != nil {
 		log.Printf("Error with loading VCARD %s\n", retDB.Error)
-		return rows, retDB.Error
+		return retDB.Error, rows
 	}
 
-	return rows, nil
+	return nil, rows
 }
 
 func FindVCardsFromAddressbook(adbID string, vcardIDs []string) (error, []*model.VCARD) {
