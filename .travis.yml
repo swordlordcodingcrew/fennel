@@ -53,9 +53,8 @@ script:
   - cd $HOME/gopath/src/github.com/swordlordcodingcrew/fennel
   - mkdir build
   - GOPATH="$HOME/gopath/src/github.com/swordlordcodingcrew/fennel:$HOME/gopath/src/github.com/swordlordcodingcrew/fennel/vendor:/home/travis/gopath"
-  - echo $VERSION
-  - go build -o build/fenneld -gcflags "all=-N -l" swordlord.com/fenneld
-  - go build -o build/fennelcli -gcflags "all=-N -l" swordlord.com/fennelcli
+  - go build -o build/fenneld-v$VERSION -gcflags "all=-N -l" swordlord.com/fenneld
+  - go build -o build/fennelcli-v$VERSION -gcflags "all=-N -l" swordlord.com/fennelcli
 #  - make
 #  go test -v swordlord.com/fenneld
 
@@ -77,8 +76,8 @@ script:
 deploy:
   provider: releases
   file:
-    - build/fenneld
-    - build/fennelcli
+    - build/fenneld-v$VERSION
+    - build/fennelcli-v$VERSION
   api_key:
     secure: UDWn1xk0/brC95rTEZ2CEsT43rSgfLjOQtFOzW8JOKzf2fY+YZQg/to0KPOCr5pPduhdLDKjgN3+2xA0859uleFn0ASV/hsi1hKJLTQY2obbWwAg69XLrq2E3hrcJICd2QfUdnRX0SA6hvebY6RBhkqxr//wfKDcj98yiIB9/9BNLqQO5ko1mSTJdKVFISUy4ddRGAcaBE7EnykGcCdgwpdAiX1AMmqnEvC/ueKmxTWB5FglPaa2JYJ4JNXwwY+pqFf8VX3p7N1+uWn2CG9L5Y3dUQvqT/im5ITJiqkANoqDmxcoFKgAoJxd4SCErJrtEd7PQ1w1OggAYcug9wJGk1Idyjwexcy5odXEILOhz1TwovdtD2vi7YBfsOBXN047rYdYTYqw5nqNhUYX2F2jKa15O0JRdvJ4vrl4ireApaxXgutkZKHhe0/dOlyIARgao5bH3NYqZZzwai0VI1pSaN4eHxmnChovnNZeCTPpAQrnL98RUJAezHvhWDpW4MKzbaRjS5kc3txeUNuNyVhtK79cbWf34HgAaGwiRS/W4lHoPY1kMfL7Wue3PLPgMxn755sFs5ujCxmrrKyumaphAaXAYMvgpJxGb5yaIDq+pZCUPvqqlA1DwcquN8CaTPZ0B+iD+rj1Yc3DdCtWuRGazxNkcWX7j8z2gyYjDIhzASs=
   skip_cleanup: true
