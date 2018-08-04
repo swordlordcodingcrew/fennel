@@ -66,6 +66,14 @@ var userUpdateCmd = &cobra.Command{
 	RunE: UpdateUser,
 }
 
+var userVerifyCmd = &cobra.Command{
+	Use:   "verify [userid] [pwd]",
+	Short: "Verifies the password of given user.",
+	Long: `Verifies the password of the given user. Can be used to check if memorised password is correct.`,
+	Args: cobra.ExactArgs(2),
+	RunE: VerifyUser,
+}
+
 var userDeleteCmd = &cobra.Command{
 	Use:   "delete [userid]",
 	Short: "Deletes a user and all of her devices.",
@@ -88,6 +96,25 @@ func AddUser(cmd *cobra.Command, args []string) error {
 	}
 
 	tablemodule.AddUser(args[0], args[1])
+
+	return nil
+}
+
+func VerifyUser(cmd *cobra.Command, args []string) error {
+
+	if len(args) < 2 {
+		return fmt.Errorf("command 'verify' needs a user name and a password")
+	}
+
+	isValid, _ := tablemodule.ValidateUserInDB(args[0], args[1])
+
+	if isValid {
+
+		fmt.Println("User was verified")
+	} else {
+
+		fmt.Println("User could not be verified")
+	}
 
 	return nil
 }
@@ -119,6 +146,7 @@ func init() {
 
 	userCmd.AddCommand(userListCmd)
 	userCmd.AddCommand(userAddCmd)
+	userCmd.AddCommand(userVerifyCmd)
 	userCmd.AddCommand(userUpdateCmd)
 	userCmd.AddCommand(userDeleteCmd)
 

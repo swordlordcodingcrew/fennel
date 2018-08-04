@@ -19,6 +19,8 @@ If you are looking for a lightweight CalDAV / CardDAV server, **Fennel** might b
 
 ## Status ##
 
+![Build Status](https://travis-ci.org/swordlordcodingcrew/fennel.svg?branch=master)
+
 **Fennel** is beta software and should be handled as such:
 
 - The CalDAV part is still work in progress.

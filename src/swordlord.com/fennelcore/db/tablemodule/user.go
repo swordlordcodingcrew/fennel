@@ -37,9 +37,10 @@ import (
 )
 
 // TODO return permission, not true/false. when empty permission, no access...
-func ValidateUserInDB(name, password string) (bool) {
+func ValidateUserInDB(name, password string) (bool, []string) {
 
 	permissions := []string{ }
+
 	// TODO get permissions from db
 	permissions = append(permissions, "permission_from_DB")
 
@@ -47,22 +48,28 @@ func ValidateUserInDB(name, password string) (bool) {
 
 	user := &model.User{}
 
-	retDB := db.Where("name = ? AND pwd = ?", name, password).First(&user)
+	retDB := db.Where("name = ?", name).First(&user)
 
 	if retDB.Error != nil {
 		log.Printf("Login of user failed %q: %s\n", name, retDB.Error )
-		log.Fatal(retDB.Error)
-		return false
+		return false, permissions
 	}
 
 	if retDB.RowsAffected <= 0 {
 		log.Printf("Login of user failed. User not found: %s\n", name)
-		return false
+		return false, permissions
 	}
 
-	hasAccess := true
+	// TODO fill permissions array
 
-	return hasAccess
+	err := checkHashedPassword(user.Password, password)
+	if err != nil {
+		log.Printf("Login of user failed %q: %s\n", name, err )
+		return false, permissions
+	} else {
+
+		return true, permissions
+	}
 }
 
 func ListUser() {
@@ -73,19 +80,14 @@ func ListUser() {
 
 	db.Find(&rows)
 
-	// Create
-	//db.Create(&model.User{Name: "demo", Pwd: "demo"})
-
-	//db.First(&user, "name = ?", "demo") // find product with id 1
-
 	var users [][]string
 
 	for _, user := range rows {
 
-		users = append(users, []string{ user.Name, user.Password, user.CrtDat.Format("2006-01-02 15:04:05"), user.UpdDat.Format("2006-01-02 15:04:05")})
+		users = append(users, []string{ user.Name, user.Comment, user.CrtDat.Format("2006-01-02 15:04:05"), user.UpdDat.Format("2006-01-02 15:04:05")})
 	}
 
-	//wombag.WriteTable([]string{"Name", "Pwd", "CrtDat", "UpdDat"}, users)
+	fc.WriteTable([]string{"Name", "Comment", "CrtDat", "UpdDat"}, users)
 }
 
 func AddUser(name string, password string) (model.User, error) {
@@ -121,7 +123,7 @@ func UpdateUser(name string, password string) error {
 		return err
 	}
 
-	retDB := db.Model(&model.User{}).Where("Name=?", name).Update("Pwd", pwd)
+	retDB := db.Model(&model.User{}).Where("name=?", name).Update("password", pwd)
 
 	if retDB.Error != nil {
 		log.Printf("Error with User %q: %s\n", name, retDB.Error )

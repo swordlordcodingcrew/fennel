@@ -1,4 +1,4 @@
-package model
+package auth
 /*-----------------------------------------------------------------------------
  **
  ** - Fennel -
@@ -30,28 +30,21 @@ package model
 -----------------------------------------------------------------------------*/
 
 import (
-	"github.com/jinzhu/gorm"
-	"time"
-	)
+									"errors"
+	"swordlord.com/fennelcore/db/tablemodule"
+)
 
-type User struct {
-	Name 		string `gorm:"primary_key",sql:"NOT NULL"`
-	Password 	string `sql:"NOT NULL"`
-	Comment 	string
-	CrtDat		time.Time `sql:"DEFAULT:current_timestamp"`
-	UpdDat		time.Time `sql:"DEFAULT:current_timestamp"`
+func ValidateDB(uid string, pwd string) (error, string) {
+
+	// TODO handle permissions
+	isValidated, _ := tablemodule.ValidateUserInDB(uid, pwd)
+
+	if !isValidated {
+
+		return errors.New("Login Failed"), ""
+
+	} else {
+
+		return nil, ""
+	}
 }
-
-func (m *User) BeforeUpdate(scope *gorm.Scope) (err error) {
-
-	scope.SetColumn("UpdDat", time.Now())
-	return  nil
-}
-
-/*
-func (u *User) BeforeSave(scope *gorm.Scope) (err error) {
-
-	scope.SetColumn("upddat", time.Now())
-	return nil
-}
-*/

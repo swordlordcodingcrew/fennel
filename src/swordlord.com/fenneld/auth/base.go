@@ -92,6 +92,7 @@ func ValidateUser(uid string, pwd string) (error, string) {
 		return ValidateUserHTPasswd(uid, pwd)
 	case "ldap":
 	case "db":
+		return ValidateDB(uid, pwd)
 	case "courier":
 		return ValidateCourier(uid, pwd)
 	default:

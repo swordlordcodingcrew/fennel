@@ -97,11 +97,13 @@ func DeleteCal(cmd *cobra.Command, args []string) error {
 }
 
 func init() {
-	RootCmd.AddCommand(userCmd)
 
-	userCmd.AddCommand(userListCmd)
-	userCmd.AddCommand(userAddCmd)
-	userCmd.AddCommand(userDeleteCmd)
+	// TODO reactivate once its running
+	//RootCmd.AddCommand(calCmd)
+
+	calCmd.AddCommand(calListCmd)
+	calCmd.AddCommand(calAddCmd)
+	calCmd.AddCommand(calDeleteCmd)
 
 	// Here you will define your flags and configuration settings.
 
