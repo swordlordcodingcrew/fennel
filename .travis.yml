@@ -54,7 +54,9 @@ install:
 script:
   - cd $HOME/gopath/src/github.com/swordlordcodingcrew/fennel
   - mkdir build
-  - GOPATH="$HOME/gopath/src/github.com/swordlordcodingcrew/fennel:$HOME/gopath/src/github.com/swordlordcodingcrew/fennel/vendor:/home/travis/gopath"
+# as long as the vendor folder is empty, remove it from the config
+#  - GOPATH="$HOME/gopath/src/github.com/swordlordcodingcrew/fennel:$HOME/gopath/src/github.com/swordlordcodingcrew/fennel/vendor:/home/travis/gopath"
+  - GOPATH="$HOME/gopath/src/github.com/swordlordcodingcrew/fennel:/home/travis/gopath"
   - go build -o build/fenneld-v$VERSION -gcflags "all=-N -l" swordlord.com/fenneld
   - go build -o build/fennelcli-v$VERSION -gcflags "all=-N -l" swordlord.com/fennelcli
 #  - make
