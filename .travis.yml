@@ -35,6 +35,8 @@ before_install:
   - go get -u -v github.com/beevik/etree
   - go get -u -v github.com/jinzhu/now
   - go get -u -v github.com/pkg/errors
+  - go get -u -v github.com/Jeffail/gabs
+  - go get -u -v github.com/vjeantet/jodaTime
 
 # Anything in before_script that returns a nonzero exit code will flunk the
 # build and immediately stop. It's sorta like having set -e enabled in bash.

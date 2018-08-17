@@ -41,8 +41,7 @@ func main() {
 	fennelcore.InitConfig()
 
 	// Initialise database
-	// todo: make sure database is working as expected
-	// if there is an error, quit the app
+	// if there is an error, this function will quit the app
 	fennelcore.InitDatabase()
 	defer fennelcore.CloseDB()
 

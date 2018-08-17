@@ -37,7 +37,9 @@ import (
 	"time"
 	"github.com/beevik/etree"
 	"fmt"
-			)
+	"strings"
+	"swordlord.com/fennelcore/db/model"
+)
 
 func Report(w http.ResponseWriter, req *http.Request) {
 
@@ -65,7 +67,7 @@ func Report(w http.ResponseWriter, req *http.Request) {
 
 		case "calendar-multiget":
 			// TODO add handleReportCalendarMultiget
-			//handleReportCalendarMultiget(comm);
+			handleReportCalendarMultiget(w, req.RequestURI, root, sCalId);
 
 		case "calendar-query":
 			handleReportCalendarQuery(w, req.RequestURI, root, sCalId)
@@ -92,7 +94,7 @@ func handleReportCalendarQuery(w http.ResponseWriter, uri string, nodeQuery *etr
 		return
 	}
 
-	retProps := nodeQuery.FindElements("./prop/*")
+	props := nodeQuery.FindElements("./prop/*")
 
 	// TODO: check filter:
 	// <B:comp-filter name=\"VCALENDAR\">\n\r";
@@ -106,50 +108,92 @@ func handleReportCalendarQuery(w http.ResponseWriter, uri string, nodeQuery *etr
 	// DTEND;TZID=Europe/Zurich:20161014T130000Z
 	// parse when storing
 	//timerange := nodeQuery.FindElement("./filter/comp-filter[name='VCALENDAR']/comp-filter[name='VEVENT']/time-range")
+	var dtmStart *time.Time
+	var dtmEnd *time.Time
 
-	//fmt.Println(timerange)
+	filter := nodeQuery.FindElement("./filter/comp-filter[@name='VCALENDAR']/comp-filter[@name='VEVENT']/time-range")
 
-	rows, err := tablemodule.FindIcsByTimeslot(sCalId, time.Time{}, time.Time{})
-	for _, row := range rows {
+	// get everything if filter is not supplied
+	if filter != nil {
+		start := filter.SelectAttr("start")
+		if start != nil {
 
-		propstat := handler.AddResponseToMultistat(ms, uri + "/" + row.Pkey + ".ics")
+			// TODO warning, can have either whole day or time
+			s, err := time.Parse("20060102T150405Z", start.Value)
+			if err != nil {
 
-		// values to return: /B:calendar-query/A:prop
-		for _, prop := range retProps {
-
-			propName := prop.Tag
-			switch(propName) {
-				case "getetag":
-					getETag := propstat.CreateElement("getetag")
-					getETag.Space = "d"
-					getETag.SetText("etag")
-				//response += "<d:getetag>\"" + Number(date) + "\"</d:getetag>";
-
-				case "getcontenttype":
-					getCT := propstat.CreateElement("getcontenttype")
-					getCT.Space = "d"
-					getCT.SetText("text/calendar; charset=utf-8; component=" + cal.SupportedCalComponent)
-				//response += "<d:getcontenttype>text/calendar; charset=utf-8; component=" + cal.supported_cal_component + "</d:getcontenttype>";
-
-				case "calendar-data":
-					getCD := propstat.CreateElement("calendar-data")
-					getCD.Space = "cal"
-					getCD.SetText(row.Content)
-				//response += "<cal:calendar-data>" + ics.content + "</cal:calendar-data>"; // has to be cal: since a few lines below the namespace is cal: not c:
-
-				default:
-					if propName != "text" {
-						fmt.Println("CAL-Query: not handled: " + propName)
-					}
+				fmt.Println("Could not parse time format: " + start.Value)
+			} else {
+				dtmStart = &s
 			}
-
 		}
 
-		handler.AddStatusToPropstat(http.StatusOK, propstat)
+		end := filter.SelectAttr("end")
+		if end != nil {
 
+			// TODO warning, can have either whole day or time
+			e, err := time.Parse("20060102T150405Z", end.Value)
+			if err != nil {
+
+				fmt.Println("Could not parse time format: " + end.Value)
+			} else {
+				dtmEnd = &e
+			}
+		}
+	}
+
+	rows, err := tablemodule.FindIcsByTimeslot(sCalId, dtmStart, dtmEnd)
+	for _, row := range rows {
+
+		appendIcsAsResponseToMultistat(ms, row, props, uri, cal.SupportedCalComponent)
 	}
 
 	handler.SendETreeDocument(w, http.StatusMultiStatus, dRet)
+}
+
+func appendIcsAsResponseToMultistat(ms *etree.Element, ics *model.ICS, props []*etree.Element, uri string, supportedCalComponent string){
+
+	propstat := handler.AddResponseToMultistat(ms, uri + "/" + ics.Pkey + ".ics")
+
+	// values to return from: /B:calendar-query/A:prop
+	for _, prop := range props {
+
+		propName := prop.Tag
+		switch(propName) {
+
+		// TODO missing:
+		// <C:created-by xmlns:C="http://calendarserver.org/ns/"/>
+		//    <B:schedule-tag/>
+		//    <C:schedule-changes xmlns:C="http://calendarserver.org/ns/"/>
+		//    <C:updated-by xmlns:C="http://calendarserver.org/ns/"/>
+
+		case "getetag":
+			getETag := propstat.CreateElement("getetag")
+			getETag.Space = "d"
+			getETag.SetText("etag")
+			//response += "<d:getetag>\"" + Number(date) + "\"</d:getetag>";
+
+		case "getcontenttype":
+			getCT := propstat.CreateElement("getcontenttype")
+			getCT.Space = "d"
+			getCT.SetText("text/calendar; charset=utf-8; component=" + supportedCalComponent)
+			//response += "<d:getcontenttype>text/calendar; charset=utf-8; component=" + cal.supported_cal_component + "</d:getcontenttype>";
+
+		case "calendar-data":
+			getCD := propstat.CreateElement("calendar-data")
+			getCD.Space = "cal"
+			getCD.SetText(ics.Content)
+			//response += "<cal:calendar-data>" + ics.content + "</cal:calendar-data>"; // has to be cal: since a few lines below the namespace is cal: not c:
+
+		default:
+			if propName != "text" {
+				fmt.Println("CAL-Query: not handled: " + propName)
+			}
+		}
+
+	}
+
+	handler.AddStatusToPropstat(http.StatusOK, propstat)
 }
 
 func handleReportSyncCollection(w http.ResponseWriter, uri string, nodeSyncCollection *etree.Element, sCalId string) {
@@ -258,3 +302,63 @@ function handleReportCalendarProp(comm, node, cal, ics)
 
     return response;
 }*/
+
+
+func handleReportCalendarMultiget(w http.ResponseWriter, uri string, mg *etree.Element, sCalId string) {
+
+	dRet, ms := handler.GetMultistatusDocWOResponseTag()
+
+	cal, err := tablemodule.GetCal(sCalId)
+	if err != nil {
+
+		fmt.Println(err)
+
+		propstat := handler.AddResponseToMultistat(ms, uri)
+
+		handler.SendMultiStatus(w, http.StatusNotFound, dRet, propstat)
+		return
+	}
+
+	// get all href into an array for lookup/query
+	hrefs := mg.FindElements("./href")
+
+	arrHref := make([]string, len(hrefs))
+
+	for i, href := range hrefs {
+
+		arrHref[i] = parseHrefToIcsId(href.Text())
+	}
+
+	// get all root/prop entities for query and return
+	props := mg.FindElements("./prop/*")
+
+	// send these together with array to format response
+	rows, err := tablemodule.FindIcsInList(arrHref)
+	for _, row := range rows {
+
+		appendIcsAsResponseToMultistat(ms, row, props, uri, cal.SupportedCalComponent)
+	}
+
+	handler.SendETreeDocument(w, http.StatusMultiStatus, dRet)
+}
+
+func parseHrefToIcsId(href string) string {
+
+	arrPath := strings.Split(href, "/")
+	pathCount := len(arrPath)
+
+	if pathCount < 2 {
+		// TODO continue is suboptimal, we should add a bool to the array and send a 404 for said file.
+		return ""
+	}
+
+	filename := arrPath[pathCount - 1]
+
+	arrFile := strings.Split(filename, ".")
+	if len(arrFile) < 2 {
+		// TODO continue is suboptimal, we should add a bool to the array and send a 404 for said file.
+		return ""
+	}
+
+	return arrFile[0]
+}

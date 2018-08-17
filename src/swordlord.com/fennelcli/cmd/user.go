@@ -59,10 +59,10 @@ var userAddCmd = &cobra.Command{
 }
 
 var userUpdateCmd = &cobra.Command{
-	Use:   "update [userid] [password]",
-	Short: "Update the password of the user.",
-	Long: `Update the password of the user.`,
-	Args: cobra.ExactArgs(2),
+	Use:   "update [userid] [password] [comment]",
+	Short: "Update the password and comment of the user.",
+	Long: `Update the password of the user. Comment field can be left empty`,
+	Args: cobra.MinimumNArgs(2),
 	RunE: UpdateUser,
 }
 
@@ -121,11 +121,20 @@ func VerifyUser(cmd *cobra.Command, args []string) error {
 
 func UpdateUser(cmd *cobra.Command, args []string) error {
 
-	if len(args) < 2 {
-		return fmt.Errorf("command 'update' needs a user identification and a new password")
+	argCount := len(args)
+
+	if argCount < 2 {
+		return fmt.Errorf("command 'update' needs a user identification, a new password and optionally a comment")
 	}
 
-	tablemodule.UpdateUser(args[0], args[1])
+	comment := ""
+
+	if argCount > 2 {
+
+		comment = args[2]
+	}
+
+	tablemodule.UpdateUser(args[0], args[1], comment)
 
 	return nil
 }

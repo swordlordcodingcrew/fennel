@@ -1,10 +1,4 @@
 package handler
-
-import (
-	"net/http"
-	"github.com/gorilla/mux"
-)
-
 /*-----------------------------------------------------------------------------
  **
  ** - Fennel -
@@ -35,21 +29,28 @@ import (
  **
 -----------------------------------------------------------------------------*/
 
+import (
+	"net/http"
+	"github.com/gorilla/mux"
+)
+
+
 func OnWellKnown(w http.ResponseWriter, req *http.Request){
 
 	vars := mux.Vars(req)
 	sParam := vars["param"]
 
-	// TODO: only redirect to /p/ if the correct requests are sent
+	// there are different redirect targets depending on the .well-known url
+	// the user wants
+	// Never seen most of these, though
 	switch sParam {
 
-	case "caldav":
-		RespondWithRedirect(w, req, "/cal/")
-	case "carddav":
-		RespondWithRedirect(w, req, "/card/")
-	default:
-		RespondWithRedirect(w, req, "/p/")
-
+		case "caldav":
+			RespondWithRedirect(w, req, "/cal/")
+		case "carddav":
+			RespondWithRedirect(w, req, "/card/")
+		default:
+			RespondWithRedirect(w, req, "/p/")
 	}
 }
 

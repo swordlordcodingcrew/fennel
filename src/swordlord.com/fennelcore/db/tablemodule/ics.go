@@ -34,6 +34,7 @@ import (
 	fcdb "swordlord.com/fennelcore"
 	"swordlord.com/fennelcore/db/model"
 	"time"
+	"github.com/vjeantet/jodaTime"
 )
 
 func ListIcsPerCal(calendar string) {
@@ -54,15 +55,51 @@ func ListIcsPerCal(calendar string) {
 	fcdb.WriteTable([]string{"Id", "CrtDat", "UpdDat"}, ics)
 }
 
-func AddIcs(calId string, user string, calendar string, start time.Time, end time.Time, content string) (model.ICS, error) {
+func AddIcs(calId string, user string, calendar string, content string) (model.ICS, error) {
+
+	var dtmStart *time.Time
+	var dtmEnd *time.Time
+
+	json := fcdb.ParseICS(content)
+
+	sStart, ok := json.Path("VCALENDAR.VEVENT.DTSTART").Data().(string)
+	if ok {
+
+		start, err := jodaTime.Parse("yMd'T'Hms'Z'", sStart)
+		if err == nil {
+
+			dtmStart = &start
+		}
+	}
+
+	sEnd, ok := json.Path("VCALENDAR.VEVENT.DTEND").Data().(string)
+	if ok {
+
+		end, err := jodaTime.Parse("yMd'T'Hms'Z'", sEnd)
+		if err == nil {
+
+			dtmEnd = &end
+		}
+	}
+	// value == 10.0, ok == true
+
+	return AddIcsParsed(calId, user, calendar, dtmStart, dtmEnd, content)
+}
+
+func AddIcsParsed(calId string, user string, calendar string, start *time.Time, end *time.Time, content string) (model.ICS, error) {
 
 	db := fcdb.GetDB()
 
 	ics := model.ICS{Pkey: calId}
 
 	ics.CalendarId = calendar
-	ics.StartDate = start
-	ics.EndDate = end
+
+	if start != nil {
+		ics.StartDate = *start
+	}
+	if end != nil {
+		ics.EndDate = *end
+	}
 	ics.Content = content
 
 	retDB := db.Create(&ics)
@@ -134,7 +171,7 @@ func FindIcsByCalendar(calID string) ([]*model.ICS, error)  {
 	return rows, nil
 }
 
-func FindIcsByTimeslot(calID string, start time.Time, end time.Time) ([]*model.ICS, error)  {
+func FindIcsByTimeslot(calID string, start *time.Time, end *time.Time) ([]*model.ICS, error)  {
 
 	var ics model.ICS
 
@@ -146,15 +183,34 @@ func FindIcsByTimeslot(calID string, start time.Time, end time.Time) ([]*model.I
 		db = db.Where("calendar_id = ?", calID)
 	}
 
-	if !start.IsZero() {
+	if start != nil && !start.IsZero() {
 
-		db = db.Where("startdate >= ?", start)
+		db = db.Where("start_date >= ?", start)
 	}
 
-	if !end.IsZero() {
+	if end != nil && !end.IsZero() {
 
-		db = db.Where("enddate <= ?", end)
+		db = db.Where("end_date <= ?", end)
 	}
+
+	var rows []*model.ICS
+
+	retDB := db.Find(&rows)
+
+	if retDB.Error != nil {
+		log.Printf("Error with loading ICS %s\n", retDB.Error)
+		return rows, retDB.Error
+	}
+
+	return rows, nil
+}
+
+func FindIcsInList(arrICS []string) ([]*model.ICS, error)  {
+
+	var ics model.ICS
+
+	db := fcdb.GetDB()
+	db = db.Model(ics).Where("pkey in (?)", arrICS)
 
 	var rows []*model.ICS
 

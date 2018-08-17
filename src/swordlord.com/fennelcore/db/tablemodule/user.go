@@ -113,18 +113,21 @@ func AddUser(name string, password string) (model.User, error) {
 	return user, nil
 }
 
-func UpdateUser(name string, password string) error {
+func UpdateUser(name string, password string, comment string) error {
 
 	db := fc.GetDB()
 
-	pwd, err := hashPassword(password)
-	if err != nil {
-		log.Printf("Error with hashing password %q: %s\n", password, err )
-		return err
+	user := &model.User{}
+
+	hash, err := hashPassword(password)
+	if err == nil {
+		user.Password = hash
 	}
 
-	retDB := db.Model(&model.User{}).Where("name=?", name).Update("password", pwd)
+	// we can set w/o checking if empty, for GORM will only update non-empty fields
+	user.Comment = comment
 
+	retDB := db.Model(&user).Where("name=?", name).Update(&user)
 	if retDB.Error != nil {
 		log.Printf("Error with User %q: %s\n", name, retDB.Error )
 		return retDB.Error
@@ -171,10 +174,6 @@ func hashPassword(pwd string) (string, error) {
 	}
 
 	return string(hashedPassword), nil
-
-	// Comparing the password with the hash
-	//err = bcrypt.CompareHashAndPassword(hashedPassword, password)
-	//fmt.Println(err) // nil means it is a match
 }
 
 

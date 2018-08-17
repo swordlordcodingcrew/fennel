@@ -35,8 +35,7 @@ import (
 	"encoding/xml"
 	"github.com/gorilla/mux"
 	"swordlord.com/fennelcore/db/tablemodule"
-	"time"
-		"fmt"
+			"fmt"
 		"io/ioutil"
 	"log"
 )
@@ -158,16 +157,9 @@ func Put(w http.ResponseWriter, req *http.Request){
 	sCal := vars["calendar"]
 	sEvent := vars["event"]
 
-	// var parser = require("../libs/parser");
-	//    var pbody = parser.parseICS(body);
-	//
-	//    var dtStart = moment(pbody.VCALENDAR.VEVENT.DTSTART);
-	//    var dtEnd = moment(pbody.VCALENDAR.VEVENT.DTEND);
-	// dates toISOString
-
 	bodyBuffer, _ := ioutil.ReadAll(req.Body)
 
-	ics, err := tablemodule.AddIcs(sEvent, sUser, sCal, time.Now(), time.Now(), string(bodyBuffer))
+	ics, err := tablemodule.AddIcs(sEvent, sUser, sCal, string(bodyBuffer))
 	if err != nil {
 
 		handler.RespondWithMessage(w, http.StatusPreconditionFailed, err.Error())

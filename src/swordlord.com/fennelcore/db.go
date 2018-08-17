@@ -38,7 +38,7 @@ import (
 var db gorm.DB
 
 //
-func InitDatabase() {
+func InitDatabase(){
 
 	dialect := GetStringFromConfig("db.dialect")
 	args := GetStringFromConfig("db.args")
@@ -69,7 +69,6 @@ func InitDatabase() {
 	db.AutoMigrate(&model.ADB{})
 	db.AutoMigrate(&model.ICS{})
 	db.AutoMigrate(&model.VCARD{})
-
 }
 
 func updateCreated(scope *gorm.Scope) {
