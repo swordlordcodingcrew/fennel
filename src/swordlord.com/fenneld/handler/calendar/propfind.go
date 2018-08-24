@@ -39,6 +39,57 @@ import (
 	"swordlord.com/fennelcore/db/model"
 )
 
+// TODO check if on root, if yes, answer differently
+func PropfindRoot(w http.ResponseWriter, req *http.Request) {
+
+	sUser, ok := req.Context().Value("auth_user").(string)
+	if !ok {
+		// TODO fail when there is no user, since this can't really happen!
+		sUser = ""
+	}
+
+	dRet, propstat := handler.GetMultistatusDoc("/cal/" + sUser + "/")
+
+	doc := etree.NewDocument()
+	size, err := doc.ReadFrom(req.Body)
+	if err != nil || size == 0 {
+
+		fmt.Printf("Error reading XML Body. Error: %s Size: %v", err, size)
+
+		handler.SendMultiStatus(w, http.StatusNotFound, dRet, propstat)
+		return
+	}
+
+	// find query parameters and store in props
+	// could probably be faster with compiled path...
+	// propfindPath := etree.MustCompilePath("/propfind/prop/*")
+	propsQuery := doc.FindElements("/propfind/prop/*")
+
+	// create new element to store response in
+	prop := propstat.CreateElement("prop")
+	prop.Space = "d"
+
+	// let helper function fill prop element with requested props
+	// TODO fix empty CAL (nil preferred)
+	fillPropfindResponse(prop, sUser, model.CAL{}, propsQuery)
+
+	// add status based on query
+	status := propstat.CreateElement("status")
+	status.Space = "d"
+
+	if len(prop.ChildElements()) > 0 {
+
+		status.SetText("HTTP/1.1 200 OK")
+
+	} else {
+
+		status.SetText("HTTP/1.1 404 Not Found")
+	}
+
+	// send response to client
+	handler.SendETreeDocument(w, http.StatusMultiStatus, dRet)
+}
+
 func PropfindUser(w http.ResponseWriter, req *http.Request){
 
 	// TODO
@@ -68,8 +119,13 @@ func PropfindNotification(w http.ResponseWriter, req *http.Request){
 func PropfindCalendar(w http.ResponseWriter, req *http.Request){
 
 	vars := mux.Vars(req)
-	sUser := vars["user"]
 	sCal := vars["calendar"]
+
+	sUser, ok := req.Context().Value("auth_user").(string)
+	if !ok {
+		// TODO fail when there is no user, since this can't really happen!
+		sUser = ""
+	}
 
 	dRet, propstat := handler.GetMultistatusDoc("/cal/" + sUser + "/" + sCal + "/")
 
@@ -146,6 +202,7 @@ func fillPropfindResponse(node *etree.Element, user string, cal model.CAL, props
 
 			//case "calendar-description":
 			//case "calendar-free-busy-set":
+			//response += "<d:response><d:href>/</d:href></d:response>";
 
 		case "calendar-order":
 			response += "" // "<xical:calendar-order xmlns:xical=\"http://apple.com/ns/ical/\">" + cal.Order + "</xical:calendar-order>";
@@ -158,17 +215,24 @@ func fillPropfindResponse(node *etree.Element, user string, cal model.CAL, props
 		case "current-user-privilege-set":
 			response += "" //getCurrentUserPrivilegeSet();
 
+		case "current-user-principal":
+			response += ""
+			// <d:current-user-principal><d:href>/p/" + username + "/</d:href></d:current-user-principal>
+
 			//case "default-alarm-vevent-date":
 			//case "default-alarm-vevent-datetime":
 
 		case "displayname":
-			response += "<d:displayname>" + cal.Displayname + "</d:displayname>";
+			response += "<d:displayname>" + cal.Displayname + "</d:displayname>"
 
 			//case "language-code":
 			//case "location-code":
 
 		case "owner":
-			response += "<d:owner><d:href>/p/" + user +"/</d:href></d:owner>";
+			response += "<d:owner><d:href>/p/" + user +"/</d:href></d:owner>"
+
+		case "principal-collection-set":
+			//"<d:principal-collection-set><d:href>/p/</d:href></d:principal-collection-set>"
 
 			// TODO Fix URL
 		case "pre-publish-url":

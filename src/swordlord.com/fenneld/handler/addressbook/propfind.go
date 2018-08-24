@@ -32,18 +32,26 @@ package addressbook
 import (
 	"net/http"
 	"swordlord.com/fenneld/handler"
-	"github.com/gorilla/mux"
-		"swordlord.com/fennelcore/db/tablemodule"
+			"swordlord.com/fennelcore/db/tablemodule"
 	"fmt"
 		"github.com/beevik/etree"
 	"swordlord.com/fennelcore/db/model"
 	"strconv"
 )
 
+// TODO check if on root, if yes, answer differently
+func PropfindRoot(w http.ResponseWriter, req *http.Request) {
+
+	Propfind(w, req)
+}
+
 func Propfind(w http.ResponseWriter, req *http.Request){
 
-	vars := mux.Vars(req)
-	sUser := vars["user"]
+	sUser, ok := req.Context().Value("auth_user").(string)
+	if !ok {
+		// TODO fail when there is no user, since this can't really happen!
+		sUser = ""
+	}
 
 	dRet, ms := handler.GetMultistatusDocWOResponseTag()
 
@@ -130,7 +138,7 @@ func fillPropfindResponseOnAddressbookRoot(psRoot *etree.Element, sUser string, 
 
 		default:
 			if name != "text" {
-				fmt.Println("CAL-PF: not handled: " + name)
+				fmt.Println("CARD_AddressbookRoot-PF: not handled: " + name)
 			}
 		}
 	}
@@ -201,7 +209,7 @@ func fillPropfindResponseOnEachAddressbook(ms *etree.Element, sUser string, rows
 
 			default:
 				if name != "text" {
-					fmt.Println("CARD-PF: not handled: " + name)
+					fmt.Println("CARD-Addressbook-PF: not handled: " + name)
 				}
 			}
 		}

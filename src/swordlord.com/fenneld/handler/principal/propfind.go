@@ -33,13 +33,15 @@ import (
 	"swordlord.com/fenneld/handler"
 	"fmt"
 	"github.com/beevik/etree"
-	"github.com/gorilla/mux"
-)
+	)
 
 func Propfind(w http.ResponseWriter, req *http.Request){
 
-	vars := mux.Vars(req)
-	sUser := vars["user"]
+	sUser, ok := req.Context().Value("auth_user").(string)
+	if !ok {
+		// TODO fail when there is no user, since this can't really happen!
+		sUser = ""
+	}
 
 	dRet, propstat := handler.GetMultistatusDoc(req.RequestURI)
 

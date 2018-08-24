@@ -53,9 +53,14 @@ func Options(w http.ResponseWriter, req *http.Request){
 func Put(w http.ResponseWriter, req *http.Request){
 
 	vars := mux.Vars(req)
-	sUser := vars["user"]
 	sAB := vars["addressbook"]
 	sCard := vars["card"]
+
+	sUser, ok := req.Context().Value("auth_user").(string)
+	if !ok {
+		// TODO fail when there is no user, since this can't really happen!
+		sUser = ""
+	}
 
 	bodyBuffer, _ := ioutil.ReadAll(req.Body)
 
@@ -92,7 +97,6 @@ func Get(w http.ResponseWriter, req *http.Request){
 func Delete(w http.ResponseWriter, req *http.Request){
 
 	vars := mux.Vars(req)
-	//sUser := vars["user"]
 	sCard := vars["card"]
 
 	err := tablemodule.DeleteVCard(sCard)

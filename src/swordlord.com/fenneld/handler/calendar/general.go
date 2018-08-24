@@ -116,9 +116,13 @@ payload += "</B:mkcalendar>\n\r";
 func MakeCalendar(w http.ResponseWriter, req *http.Request){
 
 	vars := mux.Vars(req)
-	sUser := vars["user"]
 	sCal := vars["calendar"]
 
+	sUser, ok := req.Context().Value("auth_user").(string)
+	if !ok {
+		// TODO fail when there is no user, since this can't really happen!
+		sUser = ""
+	}
 	//var dm Xmlmakecalendar
 
 	decoder := xml.NewDecoder(req.Body)
@@ -153,9 +157,14 @@ func MakeCalendar(w http.ResponseWriter, req *http.Request){
 func Put(w http.ResponseWriter, req *http.Request){
 
 	vars := mux.Vars(req)
-	sUser := vars["user"]
 	sCal := vars["calendar"]
 	sEvent := vars["event"]
+
+	sUser, ok := req.Context().Value("auth_user").(string)
+	if !ok {
+		// TODO fail when there is no user, since this can't really happen!
+		sUser = ""
+	}
 
 	bodyBuffer, _ := ioutil.ReadAll(req.Body)
 
@@ -174,8 +183,6 @@ func Put(w http.ResponseWriter, req *http.Request){
 func Get(w http.ResponseWriter, req *http.Request) {
 
 	vars := mux.Vars(req)
-	//sUser := vars["user"]
-	//sCal := vars["calendar"]
 	sEvent := vars["event"]
 
 	ics, err := tablemodule.GetICS(sEvent)
@@ -194,8 +201,6 @@ func Get(w http.ResponseWriter, req *http.Request) {
 func Delete(w http.ResponseWriter, req *http.Request){
 
 	vars := mux.Vars(req)
-	//sUser := vars["user"]
-	//sCal := vars["calendar"]
 	sEvent := vars["event"]
 
 	err := tablemodule.DeleteIcs(sEvent)

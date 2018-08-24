@@ -44,7 +44,6 @@ import (
 func Report(w http.ResponseWriter, req *http.Request) {
 
 	vars := mux.Vars(req)
-	//sUser := vars["user"]
 	sCalId := vars["calendar"]
 
 	doc := etree.NewDocument()

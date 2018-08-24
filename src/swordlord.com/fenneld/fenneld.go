@@ -66,21 +66,25 @@ func main() {
 
 	// what to do when a user hits the root
 	gr.HandleFunc("/", handler.OnRoot).Methods("GET")
+	gr.HandleFunc("/", handler.OnRoot).Methods("PROPFIND")
 
 	// ******************* SERVICE DISCOVERY
-	gr.HandleFunc("/.well-known", handler.OnWellKnownNoParam).Methods("GET")
-	gr.HandleFunc("/.well-known/{param:[0-9a-zA-Z-]+}", handler.OnWellKnown).Methods("GET")
+	gr.HandleFunc("/.well-known", handler.OnWellKnownNoParam).Methods("GET", "PROPFIND")
+	gr.HandleFunc("/.well-known/{param:[0-9a-zA-Z-]+}", handler.OnWellKnown).Methods("GET", "PROPFIND")
 
 	// ******************* PRINCIPAL
 	sr_p := gr.PathPrefix("/p").Subrouter()
 	//sr_p.HandleFunc("", handler.onPrincipal).Methods("GET") -> should not happen?
 	sr_p.HandleFunc("/", principal.Options).Methods("OPTIONS")
 	sr_p.HandleFunc("/", principal.Report).Methods("REPORT")
+	sr_p.HandleFunc("/", principal.Propfind).Methods("PROPFIND")
 	sr_p.HandleFunc("/{user:[0-9a-zA-Z-]+}/", principal.Propfind).Methods("PROPFIND")
+	sr_p.HandleFunc("/{user:[0-9a-zA-Z-]+}/", principal.Options).Methods("OPTIONS")
 	sr_p.HandleFunc("", principal.Proppatch).Methods("PROPPATCH")
 
 	// ******************* CALENDAR
 	sr_cal := gr.PathPrefix("/cal").Subrouter()
+	sr_cal.HandleFunc("/{user:[0-9a-zA-Z-]+}/", calendar.PropfindRoot).Methods("PROPFIND")
 	sr_cal.HandleFunc("/{user:[0-9a-zA-Z-]+}/", calendar.Options).Methods("OPTIONS")
 	sr_cal.HandleFunc("/{user:[0-9a-zA-Z-]+}/{calendar:[0-9a-zA-Z-]+}/", calendar.MakeCalendar).Methods("MKCALENDAR")
 	sr_cal.HandleFunc("/{user:[0-9a-zA-Z-]+}/{calendar:[0-9a-zA-Z-]+}/{event:[0-9a-zA-Z-]+}.ics", calendar.Put).Methods("PUT")
@@ -96,6 +100,7 @@ func main() {
 
 	// ******************* ADDRESSBOOK
 	sr_card := gr.PathPrefix("/card").Subrouter()
+	sr_card.HandleFunc("/", addressbook.PropfindRoot).Methods("PROPFIND")
 	sr_card.HandleFunc("/{user:[0-9a-zA-Z-]+}/", addressbook.Propfind).Methods("PROPFIND")
 	sr_card.HandleFunc("/{user:[0-9a-zA-Z-]+}/{addressbook:[0-9a-zA-Z-]+}/", addressbook.Options).Methods("OPTIONS")
 	sr_card.HandleFunc("/{user:[0-9a-zA-Z-]+}/{addressbook:[0-9a-zA-Z-]+}/", addressbook.Report).Methods("REPORT")

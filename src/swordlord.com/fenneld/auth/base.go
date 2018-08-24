@@ -8,6 +8,7 @@ import (
 				"github.com/pkg/errors"
 	"swordlord.com/fenneld/handler"
 	"swordlord.com/fennelcore"
+	"context"
 )
 
 /*-----------------------------------------------------------------------------
@@ -75,10 +76,11 @@ func NewFennelAuthentication() negroni.HandlerFunc {
 
 		println(roles)
 
-		// TODO set header / env var when authenticated
+		// env/context var when authenticated
+		ctx := req.Context()
+		ctx = context.WithValue(ctx, "auth_user", uid)
 
-
-		next(w, req)
+		next(w, req.WithContext(ctx))
 	}
 }
 
@@ -88,15 +90,15 @@ func ValidateUser(uid string, pwd string) (error, string) {
 
 	switch authModule {
 
-	case "htpasswd":
-		return ValidateUserHTPasswd(uid, pwd)
-	case "ldap":
-	case "db":
-		return ValidateDB(uid, pwd)
-	case "courier":
-		return ValidateCourier(uid, pwd)
-	default:
-		return errors.New("Authentication Module unknown, can't authenticate"), ""
+		case "htpasswd":
+			return ValidateUserHTPasswd(uid, pwd)
+		case "ldap":
+		case "db":
+			return ValidateDB(uid, pwd)
+		case "courier":
+			return ValidateCourier(uid, pwd)
+		default:
+			return errors.New("Authentication Module unknown, can't authenticate"), ""
 	}
 
 	return errors.New("Authentication Module unknown, can't authenticate"), ""

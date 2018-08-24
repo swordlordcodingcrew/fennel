@@ -62,8 +62,13 @@ xmlns:cal="urn:ietf:params:xml:ns:caldav" xmlns:cs="http://calendarserver.org/ns
 	*/
 
 	vars := mux.Vars(req)
-	sUser := vars["user"]
 	sAB := vars["addressbook"]
+
+	sUser, ok := req.Context().Value("auth_user").(string)
+	if !ok {
+		// TODO fail when there is no user, since this can't really happen!
+		sUser = ""
+	}
 
 	doc := etree.NewDocument()
 	size, err := doc.ReadFrom(req.Body)
