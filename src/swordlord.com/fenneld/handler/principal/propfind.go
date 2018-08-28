@@ -96,7 +96,7 @@ func fillPropfindResponse(node *etree.Element, props []*etree.Element, sUser str
 		switch(name) {
 
 		case "checksum-versions":
-			//response += "";
+			//";
 
 		case "sync-token":
 			prop := node.CreateElement("sync-token")
@@ -107,7 +107,7 @@ func fillPropfindResponse(node *etree.Element, props []*etree.Element, sUser str
 			fillSupportedReportSet(node)
 
 		case "principal-URL":
-			//response += "<d:principal-URL><d:href>/p/" + comm.getUser().getUserName() + "/</d:href></d:principal-URL>\r\n";
+			//<d:principal-URL><d:href>/p/" + comm.getUser().getUserName() + "/</d:href></d:principal-URL>\r\n";
 			prop := node.CreateElement("principal-URL")
 			prop.Space = "d"
 
@@ -117,13 +117,13 @@ func fillPropfindResponse(node *etree.Element, props []*etree.Element, sUser str
 			href.SetText("/p/" + sUser + "/")
 
 		case "displayname":
-			//response += "<d:displayname>" + comm.getUser().getUserName() + "</d:displayname>";
+			//<d:displayname>" + comm.getUser().getUserName() + "</d:displayname>";
 			prop := node.CreateElement("displayname")
 			prop.Space = "d"
 			prop.SetText(sUser)
 
 		case "principal-collection-set":
-			//response += "<d:principal-collection-set><d:href>/p/</d:href></d:principal-collection-set>";
+			//<d:principal-collection-set><d:href>/p/</d:href></d:principal-collection-set>";
 			prop := node.CreateElement("principal-collection-set")
 			prop.Space = "d"
 
@@ -133,7 +133,7 @@ func fillPropfindResponse(node *etree.Element, props []*etree.Element, sUser str
 			href.SetText("/p/")
 
 		case "current-user-principal":
-			//response += "<d:current-user-principal><d:href>/p/" + comm.getUser().getUserName() + "/</d:href></d:current-user-principal>";
+			//<d:current-user-principal><d:href>/p/" + comm.getUser().getUserName() + "/</d:href></d:current-user-principal>";
 			prop := node.CreateElement("current-user-principal")
 			prop.Space = "d"
 
@@ -143,7 +143,7 @@ func fillPropfindResponse(node *etree.Element, props []*etree.Element, sUser str
 			href.SetText("/p/" + sUser + "/")
 
 		case "calendar-home-set":
-			//response += "<cal:calendar-home-set><d:href>/cal/" + comm.getUser().getUserName() + "</d:href></cal:calendar-home-set>";
+			//<cal:calendar-home-set><d:href>/cal/" + comm.getUser().getUserName() + "</d:href></cal:calendar-home-set>";
 			prop := node.CreateElement("calendar-home-set")
 			prop.Space = "cal"
 
@@ -153,7 +153,7 @@ func fillPropfindResponse(node *etree.Element, props []*etree.Element, sUser str
 			href.SetText("/cal/" + sUser + "/")
 
 		case "schedule-outbox-URL":
-			//response += "<cal:schedule-outbox-URL><d:href>/cal/" + comm.getUser().getUserName() + "/outbox</d:href></cal:schedule-outbox-URL>";
+			//<cal:schedule-outbox-URL><d:href>/cal/" + comm.getUser().getUserName() + "/outbox</d:href></cal:schedule-outbox-URL>";
 			prop := node.CreateElement("schedule-outbox-URL")
 			prop.Space = "cal"
 
@@ -174,7 +174,7 @@ func fillPropfindResponse(node *etree.Element, props []*etree.Element, sUser str
 			href2.SetText("/p/" + sUser + "/")
 
 		case "notification-URL":
-			//response += "<cs:notification-URL><d:href>/cal/" + comm.getUser().getUserName() + "/notifications/</d:href></cs:notification-URL>";
+			//<cs:notification-URL><d:href>/cal/" + comm.getUser().getUserName() + "/notifications/</d:href></cs:notification-URL>";
 			prop := node.CreateElement("notification-URL")
 			prop.Space = "cs"
 
@@ -184,10 +184,10 @@ func fillPropfindResponse(node *etree.Element, props []*etree.Element, sUser str
 			href.SetText("/cal/" + sUser + "/notifications/")
 
 		case "getcontenttype":
-			//response += "";
+			//";
 
 		case "addressbook-home-set":
-			//response += "<card:addressbook-home-set><d:href>/card/" + comm.getUser().getUserName() + "/</d:href></card:addressbook-home-set>";
+			//<card:addressbook-home-set><d:href>/card/" + comm.getUser().getUserName() + "/</d:href></card:addressbook-home-set>";
 			prop := node.CreateElement("addressbook-home-set")
 			prop.Space = "card"
 
@@ -197,10 +197,10 @@ func fillPropfindResponse(node *etree.Element, props []*etree.Element, sUser str
 			href.SetText("/card/" + sUser + "/")
 
 		case "directory-gateway":
-			//response += "";
+			//";
 
 		case "email-address-set":
-			//response += "<cs:email-address-set><cs:email-address>lord test at swordlord.com</cs:email-address></cs:email-address-set>";
+			//<cs:email-address-set><cs:email-address>lord test at swordlord.com</cs:email-address></cs:email-address-set>";
 			prop := node.CreateElement("email-address-set")
 			prop.Space = "cs"
 
@@ -223,6 +223,25 @@ func fillPropfindResponse(node *etree.Element, props []*etree.Element, sUser str
 
 func fillSupportedReportSet(node *etree.Element) {
 
+	/*
+        <d:supported-report-set>\r\n";
+        	<d:supported-report>\r\n";
+        		<d:report>\r\n";
+        			<d:expand-property/>\r\n";
+        		</d:report>\r\n";
+        	</d:supported-report>\r\n";
+        	<d:supported-report>\r\n";
+        		<d:report>\r\n";
+        			<d:principal-property-search/>\r\n";
+        		</d:report>\r\n";
+        	</d:supported-report>\r\n";
+        	<d:supported-report>\r\n";
+        		<d:report>\r\n";
+        			<d:principal-search-property-set/>\r\n";
+        		</d:report>\r\n";
+        	</d:supported-report>\r\n";
+        </d:supported-report-set>\r\n";
+*/
 	srs := node.CreateElement("supported-report-set")
 	srs.Space = "d"
 
@@ -255,24 +274,5 @@ func fillSupportedReportSet(node *etree.Element) {
 
 	psps := r3.CreateElement("principal-search-property-set")
 	psps.Space = "d"
-
-	/*
-response += "        <d:supported-report-set>\r\n";
-response += "        	<d:supported-report>\r\n";
-response += "        		<d:report>\r\n";
-response += "        			<d:expand-property/>\r\n";
-response += "        		</d:report>\r\n";
-response += "        	</d:supported-report>\r\n";
-response += "        	<d:supported-report>\r\n";
-response += "        		<d:report>\r\n";
-response += "        			<d:principal-property-search/>\r\n";
-response += "        		</d:report>\r\n";
-response += "        	</d:supported-report>\r\n";
-response += "        	<d:supported-report>\r\n";
-response += "        		<d:report>\r\n";
-response += "        			<d:principal-search-property-set/>\r\n";
-response += "        		</d:report>\r\n";
-response += "        	</d:supported-report>\r\n";
-response += "        </d:supported-report-set>\r\n";
-*/
+	
 }

@@ -53,7 +53,7 @@ func ListCal() {
 	fcdb.WriteTable([]string{"Id", "CrtDat", "UpdDat"}, cal)
 }
 
-func AddCal(user string, calId string, displayname string, colour string, freebusyset string, order uint, supportedCalComponent string, synctoken uint, timezone string) (model.CAL, error) {
+func AddCal(user string, calId string, displayname string, colour string, freebusyset string, order int, supportedCalComponent string, synctoken int, timezone string) (model.CAL, error) {
 
 	db := fcdb.GetDB()
 

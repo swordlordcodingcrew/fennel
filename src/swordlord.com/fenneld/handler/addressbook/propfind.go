@@ -346,7 +346,6 @@ func fillSupportedReportSetADB(ps *etree.Element) {
 	//          </d:supported-report>
 	//        </d:supported-report-set>
 
-
 	srs := ps.CreateElement("supported-report-set")
 	srs.Space = "d"
 

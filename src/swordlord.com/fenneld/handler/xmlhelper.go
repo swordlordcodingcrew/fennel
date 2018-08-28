@@ -1,4 +1,4 @@
-package model
+package handler
 /*-----------------------------------------------------------------------------
  **
  ** - Fennel -
@@ -28,36 +28,14 @@ package model
  ** LordCelery@swordlord.com
  **
 -----------------------------------------------------------------------------*/
-
 import (
-	"github.com/jinzhu/gorm"
-	"time"
+	"github.com/beevik/etree"
 )
 
-type CAL struct {
-	Pkey    string `gorm:"primary_key"`
-	Owner	string `sql:"NOT NULL"`
-	Timezone string `sql:"NOT NULL"`
-	Order	int `sql:"NOT NULL"`
-	FreeBusySet string `sql:"NOT NULL"`
-	SupportedCalComponent string `sql:"NOT NULL"`
-	Colour string `sql:"NOT NULL"`
-	Displayname string `sql:"NOT NULL"`
-	Synctoken	int `sql:"NOT NULL; DEFAULT:0"`
-	CrtDat	time.Time `sql:"DEFAULT:current_timestamp"`
-	UpdDat	time.Time `sql:"DEFAULT:current_timestamp"`
+func AddURLElement(node *etree.Element, url string){
+
+	//<d:href>/p/</d:href>
+	cup := node.CreateElement("href")
+	cup.Space = "d"
+	cup.SetText(url)
 }
-
-func (m *CAL) BeforeUpdate(scope *gorm.Scope) (err error) {
-
-	scope.SetColumn("UpdDat", time.Now())
-	return  nil
-}
-
-/*
-func (u *User) BeforeSave(scope *gorm.Scope) (err error) {
-
-	scope.SetColumn("upddat", time.Now())
-	return nil
-}
-*/

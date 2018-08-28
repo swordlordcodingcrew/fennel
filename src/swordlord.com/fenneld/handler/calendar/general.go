@@ -53,7 +53,7 @@ type Xmlset struct {
 type Xmlprop struct {
 	XMLName 				xml.Name
 	Displayname				string 	`xml:"displayname"`
-	CalendarOrder			uint	`xml:"calendar-order"`
+	CalendarOrder			int	`xml:"calendar-order"`
 	CalendarTimezone		string	`xml:"calendar-timezone"`
 	CalendarColour			string	`xml:"calendar-color"`
 }

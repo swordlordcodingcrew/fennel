@@ -37,6 +37,7 @@ import (
 	"github.com/beevik/etree"
 	"fmt"
 	"swordlord.com/fennelcore/db/model"
+	"strconv"
 )
 
 // TODO check if on root, if yes, answer differently
@@ -71,7 +72,7 @@ func PropfindRoot(w http.ResponseWriter, req *http.Request) {
 
 	// let helper function fill prop element with requested props
 	// TODO fix empty CAL (nil preferred)
-	fillPropfindResponse(prop, sUser, model.CAL{}, propsQuery)
+	fillPropfindResponse(prop, sUser, model.CAL{}, propsQuery, true)
 
 	// add status based on query
 	status := propstat.CreateElement("status")
@@ -158,7 +159,7 @@ func PropfindCalendar(w http.ResponseWriter, req *http.Request){
 	prop.Space = "d"
 
 	// let helper function fill prop element with requested props
-	fillPropfindResponse(prop, sUser, cal, propsQuery)
+	fillPropfindResponse(prop, sUser, cal, propsQuery, false)
 
 	// add status based on query
 	status := propstat.CreateElement("status")
@@ -177,10 +178,9 @@ func PropfindCalendar(w http.ResponseWriter, req *http.Request){
 	handler.SendETreeDocument(w, http.StatusMultiStatus, dRet)
 }
 
-func fillPropfindResponse(node *etree.Element, user string, cal model.CAL, props []*etree.Element) {
+func fillPropfindResponse(node *etree.Element, user string, cal model.CAL, props []*etree.Element, isRoot bool) {
 
 	// TODO
-	response := ""
 	token := ""
 
 	for _, e := range props {
@@ -192,51 +192,83 @@ func fillPropfindResponse(node *etree.Element, user string, cal model.CAL, props
 		//case "add-member":
 
 		case "allowed-sharing-modes":
-			response += "<cs:allowed-sharing-modes><cs:can-be-shared/><cs:can-be-published/></cs:allowed-sharing-modes>";
+			// <cs:allowed-sharing-modes><cs:can-be-shared/><cs:can-be-published/></cs:allowed-sharing-modes>";
+			asm := node.CreateElement("allowed-sharing-modes")
+			asm.Space = "cs"
+			cbs := asm.CreateElement("can-be-shared")
+			cbs.Space = "cs"
+			cbp := asm.CreateElement("can-be-published")
+			cbp.Space = "cs"
 
 			//case "autoprovisioned":
 			//case "bulk-requests":
 
 		case "calendar-color":
-			response += "<xical:calendar-color xmlns:xical=\"http://apple.com/ns/ical/\">" + cal.Colour + "</xical:calendar-color>";
+			// <xical:calendar-color xmlns:xical=\"http://apple.com/ns/ical/\">" + cal.Colour + "</xical:calendar-color>";
+			cc := node.CreateElement("calendar-color")
+			cc.Space = "xical"
+			cc.CreateAttr("xmlns:xical", "http://apple.com/ns/ical/")
+			cc.SetText(cal.Colour)
 
 			//case "calendar-description":
 			//case "calendar-free-busy-set":
 			//response += "<d:response><d:href>/</d:href></d:response>";
 
 		case "calendar-order":
-			response += "" // "<xical:calendar-order xmlns:xical=\"http://apple.com/ns/ical/\">" + cal.Order + "</xical:calendar-order>";
+			// "<xical:calendar-order xmlns:xical=\"http://apple.com/ns/ical/\">" + cal.Order + "</xical:calendar-order>";
+			co := node.CreateElement("calendar-order")
+			co.Space = "xical"
+			co.CreateAttr("xmlns:xical", "http://apple.com/ns/ical/")
+			co.SetText(strconv.Itoa(cal.Order))
 
 		case "calendar-timezone":
 			var timezone = cal.Timezone;
+			// TODO check why here we had a replace
 			//timezone = timezone.replace(/\r\n|\r|\n/g,"&#13;\r\n");
-			response += "<cal:calendar-timezone>" + timezone + "</cal:calendar-timezone>";
+			//"<cal:calendar-timezone>" + timezone + "</cal:calendar-timezone>";
+			ct := node.CreateElement("calendar-timezone")
+			ct.Space = "cal"
+			ct.SetText(timezone)
 
 		case "current-user-privilege-set":
-			response += "" //getCurrentUserPrivilegeSet();
+			getCurrentUserPrivilegeSet(node)
 
 		case "current-user-principal":
-			response += ""
 			// <d:current-user-principal><d:href>/p/" + username + "/</d:href></d:current-user-principal>
+			cup := node.CreateElement("current-user-principal")
+			cup.Space = "d"
+			handler.AddURLElement(cup, "/p/" + user + "/")
 
 			//case "default-alarm-vevent-date":
 			//case "default-alarm-vevent-datetime":
 
 		case "displayname":
-			response += "<d:displayname>" + cal.Displayname + "</d:displayname>"
+			// "<d:displayname>" + cal.Displayname + "</d:displayname>"
+			ct := node.CreateElement("displayname")
+			ct.Space = "d"
+			ct.SetText(cal.Displayname)
 
 			//case "language-code":
 			//case "location-code":
 
 		case "owner":
-			response += "<d:owner><d:href>/p/" + user +"/</d:href></d:owner>"
+			// "<d:owner><d:href>/p/" + user +"/</d:href></d:owner>"
+			o := node.CreateElement("owner")
+			o.Space = "d"
+			handler.AddURLElement(o, "/p/" + user + "/")
 
 		case "principal-collection-set":
 			//"<d:principal-collection-set><d:href>/p/</d:href></d:principal-collection-set>"
+			pcs := node.CreateElement("principal-collection-set")
+			pcs.Space = "d"
+			handler.AddURLElement(pcs, "/p/")
 
-			// TODO Fix URL
+			// TODO Check if relative URL is acceptable. if so -> OK
 		case "pre-publish-url":
-			response += "<cs:pre-publish-url><d:href>https://127.0.0.1/cal/" + user + "/" + cal.Pkey + "</d:href></cs:pre-publish-url>";
+			//"<cs:pre-publish-url><d:href>https://127.0.0.1/cal/" + user + "/" + cal.Pkey + "</d:href></cs:pre-publish-url>";
+			pcs := node.CreateElement("pre-publish-url")
+			pcs.Space = "cs"
+			handler.AddURLElement(pcs, "/cal/" + user + "/" + cal.Pkey)
 
 			//case "publish-url":
 			//case "push-transports":
@@ -247,10 +279,20 @@ func fillPropfindResponse(node *etree.Element, user string, cal model.CAL, props
 			//case "resource-id":
 
 		case "resourcetype":
-			response += "<d:resourcetype><d:collection/><cal:calendar/></d:resourcetype>";
+			// "<d:resourcetype><d:collection/><cal:calendar/></d:resourcetype>";
+			rt := node.CreateElement("resourcetype")
+			rt.Space = "d"
+			col := rt.CreateElement("collection")
+			col.Space = "d"
+			cal := rt.CreateElement("calendar")
+			cal.Space = "cal"
 
 		case "schedule-calendar-transp":
-			response += "<cal:schedule-calendar-transp><cal:opaque/></cal:schedule-calendar-transp>";
+			// "<cal:schedule-calendar-transp><cal:opaque/></cal:schedule-calendar-transp>";
+			sct := node.CreateElement("schedule-calendar-transp")
+			sct.Space = "cal"
+			o := sct.CreateElement("opaque")
+			o.Space = "cal"
 
 			//case "schedule-default-calendar-URL":
 			//case "source":
@@ -260,10 +302,15 @@ func fillPropfindResponse(node *etree.Element, user string, cal model.CAL, props
 			//case "supported-calendar-component-set":
 
 		case "supported-calendar-component-sets":
-			response += "<cal:supported-calendar-component-set><cal:comp name=\"VEVENT\"/></cal:supported-calendar-component-set>";
+			// "<cal:supported-calendar-component-set><cal:comp name=\"VEVENT\"/></cal:supported-calendar-component-set>";
+			scc := node.CreateElement("supported-calendar-component-set")
+			scc.Space = "cal"
+			c := scc.CreateElement("comp")
+			c.Space = "cal"
+			c.CreateAttr("name", "VEVENT")
 
 		case "supported-report-set":
-			response += "" //getSupportedReportSet(false);
+			getSupportedReportSet(node, isRoot)
 
 		case "getctag":
 			prop := node.CreateElement("getctag")
@@ -282,10 +329,13 @@ func fillPropfindResponse(node *etree.Element, user string, cal model.CAL, props
 			prop.SetText("https://swordlord.com/ns/sync/" + token)
 
 		case "acl":
-			response += "" // getACL(comm)
+			getACL(node, user)
 
-			//case "getcontenttype":
+		case "getcontenttype":
 			//response += "<d:getcontenttype>text/calendar;charset=utf-8</d:getcontenttype>";
+			gct := node.CreateElement("getcontenttype")
+			gct.Space = "d"
+			gct.SetText("text/calendar;charset=utf-8")
 
 		default:
 			if name != "text" {
@@ -295,45 +345,216 @@ func fillPropfindResponse(node *etree.Element, user string, cal model.CAL, props
 	}
 }
 
-/*
-Version     string   `xml:"version,attr"`
+func getCurrentUserPrivilegeSet(node *etree.Element) {
 
-"<B:mkcalendar xmlns:B=\"urn:ietf:params:xml:ns:caldav\">\n\r";
-payload += "<A:set xmlns:A=\"DAV:\">\n\r";
-payload += "<A:prop>\n\r";
-payload += "<B:supported-calendar-component-set>\n\r";
-payload += "    <B:comp name=\"VEVENT\"/>\n\r";
-payload += "</B:supported-calendar-component-set>\n\r";
-payload += "<A:displayname>Three</A:displayname>\n\r";
-payload += "<D:calendar-order xmlns:D=\"http://apple.com/ns/ical/\">4</D:calendar-order>\n\r";
-payload += "<B:schedule-calendar-transp>\n\r";
-payload += "    <B:transparent/>\n\r";
-payload += "</B:schedule-calendar-transp>\n\r";
-payload += "<B:calendar-timezone>BEGIN:VCALENDAR&#13;\n\r";
-payload += "VERSION:2.0&#13;\n\r";
-payload += "CALSCALE:GREGORIAN&#13;\n\r";
-payload += "BEGIN:VTIMEZONE&#13;\n\r";
-payload += "TZID:Europe/Zurich&#13;\n\r";
-payload += "BEGIN:DAYLIGHT&#13;\n\r";
-payload += "TZOFFSETFROM:+0100&#13;\n\r";
-payload += "RRULE:FREQ=YEARLY;BYMONTH=3;BYDAY=-1SU&#13;\n\r";
-payload += "DTSTART:19810329T020000&#13;\n\r";
-payload += "TZNAME:GMT+2&#13;\n\r";
-payload += "TZOFFSETTO:+0200&#13;\n\r";
-payload += "END:DAYLIGHT&#13;\n\r";
-payload += "BEGIN:STANDARD&#13;\n\r";
-payload += "TZOFFSETFROM:+0200&#13;\n\r";
-payload += "RRULE:FREQ=YEARLY;BYMONTH=10;BYDAY=-1SU&#13;\n\r";
-payload += "DTSTART:19961027T030000&#13;\n\r";
-payload += "TZNAME:GMT+1&#13;\n\r";
-payload += "TZOFFSETTO:+0100&#13;\n\r";
-payload += "END:STANDARD&#13;\n\r";
-payload += "END:VTIMEZONE&#13;\n\r";
-payload += "END:VCALENDAR&#13;\n\r";
-payload += "</B:calendar-timezone>\n\r";
-payload += "<D:calendar-color xmlns:D=\"http://apple.com/ns/ical/\"\n\r";
-payload += "symbolic-color=\"yellow\">#FFCC00</D:calendar-color>\n\r";
-payload += "</A:prop>\n\r";
-payload += "</A:set>\n\r";
-payload += "</B:mkcalendar>\n\r";
+	/*
+	response += "<d:current-user-privilege-set>";
+    response += "<d:privilege xmlns:d=\"DAV:\"><cal:read-free-busy/></d:privilege>";
+    response += "<d:privilege xmlns:d=\"DAV:\"><d:write/></d:privilege>";
+    response += "<d:privilege xmlns:d=\"DAV:\"><d:write-acl/></d:privilege>";
+    response += "<d:privilege xmlns:d=\"DAV:\"><d:write-content/></d:privilege>";
+    response += "<d:privilege xmlns:d=\"DAV:\"><d:write-properties/></d:privilege>";
+    response += "<d:privilege xmlns:d=\"DAV:\"><d:bind/></d:privilege>";
+    response += "<d:privilege xmlns:d=\"DAV:\"><d:unbind/></d:privilege>";
+    response += "<d:privilege xmlns:d=\"DAV:\"><d:unlock/></d:privilege>";
+    response += "<d:privilege xmlns:d=\"DAV:\"><d:read/></d:privilege>";
+    response += "<d:privilege xmlns:d=\"DAV:\"><d:read-acl/></d:privilege>";
+    response += "<d:privilege xmlns:d=\"DAV:\"><d:read-current-user-privilege-set/></d:privilege>";
+    response += "</d:current-user-privilege-set>";
+	*/
+
+	cups := node.CreateElement("current-user-privilege-set")
+	cups.Space = "d"
+
+	addPrivilegeToPrivilegeSet(cups, "cal", "read-free-busy")
+
+	addPrivilegeToPrivilegeSet(cups, "d", "write")
+	addPrivilegeToPrivilegeSet(cups, "d", "write-acl")
+	addPrivilegeToPrivilegeSet(cups, "d", "write-content")
+	addPrivilegeToPrivilegeSet(cups, "d", "write-properties")
+	addPrivilegeToPrivilegeSet(cups, "d", "bind")
+	addPrivilegeToPrivilegeSet(cups, "d", "unbind")
+	addPrivilegeToPrivilegeSet(cups, "d", "unlock")
+	addPrivilegeToPrivilegeSet(cups, "d", "read")
+	addPrivilegeToPrivilegeSet(cups, "d", "read-acl")
+	addPrivilegeToPrivilegeSet(cups, "d", "read-current-user-privilege-set")
+}
+
+func addPrivilegeToPrivilegeSet(cups *etree.Element, namespace string, privilege string) {
+
+	p := cups.CreateElement("privilege")
+	p.Space = "d"
+	p.CreateAttr("xmlns:d", "DAV")
+
+	e := p.CreateElement(privilege)
+	e.Space = namespace
+}
+
+func getSupportedReportSet(node *etree.Element, isRoot bool) {
+
+	/*
+	response += "<d:supported-report-set>";
+
+	if(!isRoot)
+	{
+		response += "<d:supported-report><d:report><cal:calendar-multiget/></d:report></d:supported-report>";
+		response += "<d:supported-report><d:report><cal:calendar-query/></d:report></d:supported-report>";
+		response += "<d:supported-report><d:report><cal:free-busy-query/></d:report></d:supported-report>";
+	}
+
+	response += "<d:supported-report><d:report><d:sync-collection/></d:report></d:supported-report>";
+	response += "<d:supported-report><d:report><d:expand-property/></d:report></d:supported-report>";
+	response += "<d:supported-report><d:report><d:principal-property-search/></d:report></d:supported-report>";
+	response += "<d:supported-report><d:report><d:principal-search-property-set/></d:report></d:supported-report>";
+	response += "</d:supported-report-set>";
+	*/
+	srs := node.CreateElement("supported-report-set")
+	srs.Space = "d"
+
+	if isRoot {
+
+		addSupportedReport(srs, "calendar-multiget")
+		addSupportedReport(srs, "calendar-query")
+		addSupportedReport(srs, "free-busy-query")
+	}
+
+	addSupportedReport(srs, "sync-collection")
+	addSupportedReport(srs, "expand-property")
+	addSupportedReport(srs, "principal-property-search")
+	addSupportedReport(srs, "principal-search-property-set")
+}
+
+func addSupportedReport(srs *etree.Element, report string) {
+
+	sr := srs.CreateElement("supported-report")
+	sr.Space = "d"
+
+	r := sr.CreateElement("report")
+	r.Space = "d"
+
+	e := r.CreateElement(report)
+	e.Space = "d"
+}
+
+func getACL(node *etree.Element, user string) {
+
+	/*
+	    response += "<d:acl>";
+    response += "    <d:ace>";
+    response += "        <d:principal><d:href>/p/" + username + "</d:href></d:principal>";
+    response += "        <d:grant><d:privilege><d:read/></d:privilege></d:grant>";
+    response += "        <d:protected/>";
+    response += "    </d:ace>";
+
+    response += "    <d:ace>";
+    response += "        <d:principal><d:href>/p/" + username + "</d:href></d:principal>";
+    response += "        <d:grant><d:privilege><d:write/></d:privilege></d:grant>";
+    response += "        <d:protected/>";
+    response += "    </d:ace>";
+
+    response += "    <d:ace>";
+    response += "        <d:principal><d:href>/p/" + username + "/calendar-proxy-write/</d:href></d:principal>";
+    response += "        <d:grant><d:privilege><d:read/></d:privilege></d:grant>";
+    response += "        <d:protected/>";
+    response += "    </d:ace>";
+
+    response += "    <d:ace>";
+    response += "        <d:principal><d:href>/p/" + username + "/calendar-proxy-write/</d:href></d:principal>";
+    response += "        <d:grant><d:privilege><d:write/></d:privilege></d:grant>";
+    response += "        <d:protected/>";
+    response += "    </d:ace>";
+
+    response += "    <d:ace>";
+    response += "        <d:principal><d:href>/p/" + username + "/calendar-proxy-read/</d:href></d:principal>";
+    response += "        <d:grant><d:privilege><d:read/></d:privilege></d:grant>";
+    response += "        <d:protected/>";
+    response += "    </d:ace>";
+
+    response += "    <d:ace>";
+    response += "        <d:principal><d:authenticated/></d:principal>";
+    response += "        <d:grant><d:privilege><cal:read-free-busy/></d:privilege></d:grant>";
+    response += "        <d:protected/>";
+    response += "    </d:ace>";
+
+    response += "    <d:ace>";
+    response += "        <d:principal><d:href>/p/system/admins/</d:href></d:principal>";
+    response += "        <d:grant><d:privilege><d:all/></d:privilege></d:grant>";
+    response += "        <d:protected/>";
+    response += "    </d:ace>";
 */
+	acl := node.CreateElement("acl")
+	acl.Space = "d"
+
+	addACEwURL(acl, "/p/" + user, "read")
+	addACEwURL(acl, "/p/" + user, "write")
+
+	addACEwURL(acl, "/p/" + user + "/calendar-proxy-write/", "read")
+	addACEwURL(acl, "/p/" + user + "/calendar-proxy-write/", "write")
+
+	addACEwURL(acl, "/p/" + user + "/calendar-proxy-read/", "read")
+
+	addACEFreeBusy(acl)
+
+	addACEwURL(acl, "/p/system/admins/", "all")
+}
+
+func addACEwURL(acl *etree.Element, url string, privilege string)  {
+
+	//    <d:ace>";
+	//        <d:principal><d:href>/p/" + username + "</d:href></d:principal>";
+	//        <d:grant><d:privilege><d:read/></d:privilege></d:grant>";
+	//        <d:protected/>";
+	//    </d:ace>";
+
+	ace := acl.CreateElement("ace")
+	ace.Space = "d"
+
+	princ := ace.CreateElement("principal")
+	princ.Space = "d"
+
+	href := princ.CreateElement("href")
+	href.Space = "d"
+	href.SetText(url)
+
+	g := ace.CreateElement("grant")
+	g.Space = "d"
+
+	priv := g.CreateElement("privilege")
+	priv.Space = "d"
+
+	rw := priv.CreateElement(privilege)
+	rw.Space = "d"
+
+	prot := ace.CreateElement("protected")
+	prot.Space = "d"
+}
+
+func addACEFreeBusy(acl *etree.Element)  {
+
+	//    <d:ace>";
+	//        <d:principal><d:authenticated/></d:principal>";
+	//        <d:grant><d:privilege><cal:read-free-busy/></d:privilege></d:grant>";
+	//        <d:protected/>";
+	//    </d:ace>";
+
+	ace := acl.CreateElement("ace")
+	ace.Space = "d"
+
+	princ := ace.CreateElement("principal")
+	princ.Space = "d"
+
+	a := princ.CreateElement("authenticated")
+	a.Space = "d"
+
+	g := ace.CreateElement("grant")
+	g.Space = "d"
+
+	priv := g.CreateElement("privilege")
+	priv.Space = "d"
+
+	rfb := priv.CreateElement("read-free-busy")
+	rfb.Space = "cal"
+
+	prot := ace.CreateElement("protected")
+	prot.Space = "d"
+}
