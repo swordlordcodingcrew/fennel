@@ -166,18 +166,30 @@ func Put(w http.ResponseWriter, req *http.Request){
 		sUser = ""
 	}
 
+	// todo: make sure calendar exists, make otherwise?
+
 	bodyBuffer, _ := ioutil.ReadAll(req.Body)
 
-	ics, err := tablemodule.AddIcs(sEvent, sUser, sCal, string(bodyBuffer))
+	// make sure, that ICS does not exist or update it otherwise...
+	_, err := tablemodule.GetICS(sEvent)
 	if err != nil {
+		ics, err := tablemodule.AddIcs(sEvent, sUser, sCal, string(bodyBuffer))
+		if err != nil {
 
-		handler.RespondWithMessage(w, http.StatusPreconditionFailed, err.Error())
-		return
+			handler.RespondWithMessage(w, http.StatusPreconditionFailed, err.Error())
+			return
+		}
+		handler.RespondWithMessage(w, http.StatusCreated, "ICS added: " + ics.Pkey)
+	} else {
+
+		ics, err := tablemodule.UpdateIcs(sEvent, string(bodyBuffer))
+		if err != nil {
+
+		}
+		handler.RespondWithMessage(w, http.StatusCreated, "ICS updated: "+ics.Pkey)
 	}
-
 	// todo: cal increment sync token
 	// todo: return e-tag
-	handler.RespondWithMessage(w, http.StatusCreated, "ICS added: " + ics.Pkey)
 }
 
 func Get(w http.ResponseWriter, req *http.Request) {

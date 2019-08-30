@@ -38,6 +38,7 @@ import (
 	"strings"
 	"swordlord.com/fennelcore/db/tablemodule"
 	"swordlord.com/fennelcore/db/model"
+	"strconv"
 )
 
 func Report(w http.ResponseWriter, req *http.Request){
@@ -59,16 +60,51 @@ func Report(w http.ResponseWriter, req *http.Request){
 xmlns:cal="urn:ietf:params:xml:ns:caldav" xmlns:cs="http://calendarserver.org/ns/" xmlns:card="urn:ietf:params:xml:ns:carddav">
   <d:sync-token>http://sabre.io/ns/sync/18</d:sync-token>
 </d:multistatus>
+
+
+	resp.
+
+
+<d:multistatus xmlns:d="DAV:" xmlns:s="http://sabredav.org/ns" xmlns:fx="http://fruux.com/ns"
+xmlns:cal="urn:ietf:params:xml:ns:caldav" xmlns:cs="http://calendarserver.org/ns/"
+xmlns:card="urn:ietf:params:xml:ns:carddav">
+  <d:response>
+
+<d:href>/addressbooks/a3298271331/8ec6424c-ede3-4a55-8613-e760df985cac/6251687E-BF17-4B5B-AA4C-95A7D22DF020.vcf</d:href>
+    <d:propstat>
+      <d:prop>
+        <d:getetag>&quot;39687715-66286691&quot;</d:getetag>
+      </d:prop>
+      <d:status>HTTP/1.1 200 OK</d:status>
+    </d:propstat>
+  </d:response>
+  <d:response>
+
+<d:href>/addressbooks/a3298271331/8ec6424c-ede3-4a55-8613-e760df985cac/dc6789c8-4299-4360-9f2c-5781962d92aa.vcf</d:href>
+    <d:propstat>
+      <d:prop>
+        <d:getetag>&quot;8767949-66286692&quot;</d:getetag>
+      </d:prop>
+      <d:status>HTTP/1.1 200 OK</d:status>
+    </d:propstat>
+  </d:response>
+  <d:sync-token>http://sabre.io/ns/sync/20</d:sync-token>
+</d:multistatus>
+
 	*/
 
 	vars := mux.Vars(req)
 	sAB := vars["addressbook"]
+	sUser := vars["user"]
 
+	// todo do we need the logged in user?
+	/*
 	sUser, ok := req.Context().Value("auth_user").(string)
 	if !ok {
 		// TODO fail when there is no user, since this can't really happen!
 		sUser = ""
 	}
+	*/
 
 	doc := etree.NewDocument()
 	size, err := doc.ReadFrom(req.Body)
@@ -99,47 +135,75 @@ xmlns:cal="urn:ietf:params:xml:ns:caldav" xmlns:cs="http://calendarserver.org/ns
 	}
 }
 
-func handleReportSyncCollection(w http.ResponseWriter, uri string, nodeQuery *etree.Element, sUser string, sAB string) {
+func handleReportSyncCollection(w http.ResponseWriter, uri string, root *etree.Element, sUser string, sAB string) {
 
 	dRet, ms := handler.GetMultistatusDocWOResponseTag()
 
-	println(ms)
+	var syncToken = "synctoken"
+	var syncLevel = 1
 
-	// TODO check filter:
-	// <A:sync-token>http://sabre.io/ns/sync/18</A:sync-token>
-	// <A:sync-level>1</A:sync-level>
-	syncTokenQ := nodeQuery.FindElement("./sync-token/")
-	if syncTokenQ != nil {
+	elements := root.FindElements("./*")
+	for _, e := range elements {
 
+		//fmt.Println(e.Tag)
+		name := e.Tag
+		switch (name) {
+
+		case "sync-token":
+			syncToken = e.Text()
+
+		case "sync-level":
+			sl, err := strconv.Atoi(e.Text())
+			if err != nil {
+				syncLevel = sl
+			}
+
+		default:
+			if name != "text" {
+				fmt.Println("Adressbook Report SyncCollection: not handled: " + name)
+			}
+		}
 	}
-	syncLevelQ := nodeQuery.FindElement("./sync-level/")
-	if syncLevelQ != nil {
 
-	}
+	fmt.Printf("SyncToken: %v\n\r", syncToken)
+	fmt.Printf("SyncLevel: %v\n\r", syncLevel)
 
-	// TODO return etoken
+	fmt.Printf("MultiStatus: %v\n\r", ms)
+
+	// TODO apply filter, return etoken
 
 	handler.SendETreeDocument(w, http.StatusMultiStatus, dRet)
 }
 
-func handleReportAddressbookMultiget(w http.ResponseWriter, uri string, nodeQuery *etree.Element, sUser string, sAB string) {
+func handleReportAddressbookMultiget(w http.ResponseWriter, uri string, root *etree.Element, sUser string, sAB string) {
 
 	dRet, ms := handler.GetMultistatusDocWOResponseTag()
 
-	println(ms)
+	var getETag = false
+	var getAddressData = false
 
 	// TODO check filter:
 	// payload += "<A:prop xmlns:A=\"DAV:\">\n\r";
-	// payload += "<A:getetag/>\n\r";
-	// payload += "<D:address-data/>\n\r";
+	// payload += "	<A:getetag/>\n\r";
+	// payload += "	<D:address-data/>\n\r";
 	// payload += "</A:prop>\n\r";
-	eTagElement := nodeQuery.FindElement("./prop/getetag/")
-	getETag := eTagElement != nil
+	propsQuery := root.FindElements("./prop/*")
+	for _, e := range propsQuery {
 
-	addressDataElement := nodeQuery.FindElement("./prop/address-data/")
-	getAddressData := addressDataElement != nil
+		//fmt.Println(e.Tag)
+		name := e.Tag
+		switch (name) {
 
-	reqDocs := nodeQuery.FindElements("./href/")
+			case "getetag":
+				getETag = true
+
+			case "address-data":
+				getAddressData = true
+		}
+	}
+
+	// get all hrefs requested
+	reqDocs := root.FindElements("./href/")
 
 	arrVCards := make([]string, len(reqDocs))
 
@@ -173,6 +237,7 @@ func handleReportAddressbookMultiget(w http.ResponseWriter, uri string, nodeQuer
 
 	for _, row := range rows {
 
+		// TODO probably wrong -> send some data, no detail if not required
 		if getAddressData {
 			handleReportVCardReply(ms, row, uri, getETag, getAddressData)
 		}

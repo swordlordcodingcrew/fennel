@@ -98,6 +98,48 @@ func GetAddressbooksFromUser(user string) (error, []*model.ADB) {
 	return nil, rows
 }
 
+func GetAddressbookByName(name string) (error, *model.ADB) {
+
+	var adb model.ADB
+
+	db := fcdb.GetDB()
+	db = db.Model(adb)
+
+	db = db.Where("name = ?", name)
+
+	var row *model.ADB
+
+	retDB := db.First(&row)
+
+	if retDB.Error != nil {
+		log.Printf("Error with ADB by name %q: %s\n", name, retDB.Error)
+		return retDB.Error, row
+	}
+
+	return nil, row
+}
+
+func GetOrCreateAddressbookByName(name string, owner string) (error, *model.ADB) {
+
+	var adb model.ADB
+
+	db := fcdb.GetDB()
+	db = db.Model(adb)
+
+	db = db.Where(model.ADB{Name: name}).Attrs(model.ADB{Owner: owner})
+
+	var row *model.ADB
+
+	retDB := db.FirstOrCreate(&row)
+
+	if retDB.Error != nil {
+		log.Printf("Error with ADB by name %q: %s\n", name, retDB.Error)
+		return retDB.Error, row
+	}
+
+	return nil, row
+}
+
 func UpdateAddressbook(name string, password string) error {
 
 	db := fcdb.GetDB()

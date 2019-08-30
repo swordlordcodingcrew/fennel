@@ -53,12 +53,6 @@ func Proppatch(w http.ResponseWriter, req *http.Request){
 	handler.SendETreeDocument(w, http.StatusMultiStatus, dRet)
 }
 
-func Report(w http.ResponseWriter, req *http.Request){
-
-	handler.RespondWithMessage(w, http.StatusOK, "Report not implemented yet")
-
-}
-
 func Options(w http.ResponseWriter, req *http.Request){
 
 	handler.RespondWithStandardOptions(w, http.StatusOK, "")

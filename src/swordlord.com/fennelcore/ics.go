@@ -89,8 +89,7 @@ func generateJSON(file string) string {
 			continue
 		}
 
-		// TODO Unfold the lines, if no : at any position, assume it is folded with previous
-		// could be done with: get last line len(lines) and append string to that element
+		// Unfold the lines, if no : at any position, assume it is folded with previous
 		if !strings.Contains(line, ":") {
 
 			lines[len(lines) - 1] = lines[len(lines) - 1] + line

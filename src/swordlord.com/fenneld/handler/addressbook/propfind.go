@@ -32,26 +32,33 @@ package addressbook
 import (
 	"net/http"
 	"swordlord.com/fenneld/handler"
-			"swordlord.com/fennelcore/db/tablemodule"
+	"swordlord.com/fennelcore/db/tablemodule"
 	"fmt"
-		"github.com/beevik/etree"
+	"github.com/beevik/etree"
 	"swordlord.com/fennelcore/db/model"
 	"strconv"
+	"github.com/gorilla/mux"
 )
 
 // TODO check if on root, if yes, answer differently
 func PropfindRoot(w http.ResponseWriter, req *http.Request) {
 
-	Propfind(w, req)
+	handler.RespondWithMessage(w, http.StatusNotImplemented, "Propfind on Root not implemented yet")
 }
 
-func Propfind(w http.ResponseWriter, req *http.Request){
+func PropfindUser(w http.ResponseWriter, req *http.Request){
 
+	vars := mux.Vars(req)
+	sUser := vars["user"]
+
+	// todo do we need the logged in user?
+	/*
 	sUser, ok := req.Context().Value("auth_user").(string)
 	if !ok {
 		// TODO fail when there is no user, since this can't really happen!
 		sUser = ""
 	}
+	*/
 
 	dRet, ms := handler.GetMultistatusDocWOResponseTag()
 
@@ -87,11 +94,104 @@ func Propfind(w http.ResponseWriter, req *http.Request){
 		return
 	}
 
-	// let helper function fill prop elements for every single sub element
+	// let helper function fill prop elements for every single sub element (addressbook for this user)
 	fillPropfindResponseOnEachAddressbook(ms, sUser, rowsADB, propsQuery)
 
 	handler.SendETreeDocument(w, http.StatusMultiStatus, dRet)
 }
+
+/*
+TODO find out if that function should ever be called
+func PropfindAddressbook(w http.ResponseWriter, req *http.Request) {
+
+	vars := mux.Vars(req)
+	sUser := vars["user"]
+	sAddressbook := vars["addressbook"]
+
+	// TODO: check out if we already have a record for the default addressbook
+	// if not, lets create it, otherwise let's return its values...
+	err, adb := tablemodule.GetOrCreateAddressbookByName(sAddressbook, sUser)
+	if err != nil {
+
+		fmt.Printf("Error getting ADB by name: %s", err)
+
+		handler.RespondWithMessage(w, http.StatusInternalServerError, "Can't find addressbook")
+		return
+	}
+
+	err, vcards := tablemodule.FindVcardsByAddressbook(adb.Pkey)
+	if err != nil {
+
+		fmt.Printf("Error getting VCARDS for ADB: %s", err)
+
+		handler.RespondWithMessage(w, http.StatusInternalServerError, "Error loading VCARD")
+		return
+	}
+
+	dRet, ms := handler.GetMultistatusDocWOResponseTag()
+
+
+	for _, vcard := range vcards {
+
+		response += returnPropfindProps(comm, childs, adb, rsVCARDS);
+
+	}
+
+	handler.SendETreeDocument(w, http.StatusMultiStatus, dRet)
+
+	// -> response += returnPropfindProps(comm, childs, adb, rsVCARDS);
+
+	/*
+	response += returnPropfindRootProps(comm, childs);
+
+	var defaults = {
+	pkey: generateUUIDv4(),
+		ownerId: username,
+			name: 'default',
+	synctoken: 0
+	};
+
+	// check out if we already have a record for the default addressbook
+	// if not, lets create it, otherwise let's return its values...
+	ADB.findOrCreate({where: {ownerId: username, name: defaults.name},  defaults: defaults }).spread(function(adb, created)
+	{
+		VCARD.findAndCountAll(/*
+	response += returnPropfindRootProps(comm, childs);
+
+	var defaults = {
+	pkey: generateUUIDv4(),
+		ownerId: username,
+			name: 'default',
+	synctoken: 0
+	};
+
+	// check out if we already have a record for the default addressbook
+	// if not, lets create it, otherwise let's return its values...
+	ADB.findOrCreate({where: {ownerId: username, name: defaults.name},  defaults: defaults }).spread(function(adb, created)
+	{
+		VCARD.findAndCountAll(
+		{ where: {addressbookId: adb.pkey}}
+		).then(function(rsVCARDS)
+		{
+			response += returnPropfindProps(comm, childs, adb, rsVCARDS);
+
+			if(created)
+			{
+				adb.save().then(function()
+				{
+					log.warn('adb saved');
+				});
+			}
+
+			comm.appendResBody("<d:multistatus xmlns:d=\"DAV:\" xmlns:cal=\"urn:ietf:params:xml:ns:caldav\" xmlns:cs=\"http://calendarserver.org/ns/\" xmlns:card=\"urn:ietf:params:xml:ns:carddav\">");
+			comm.appendResBody(response);
+			comm.appendResBody("</d:multistatus>");
+
+			comm.flushResponse();
+		});
+	});
+}
+*/
 
 func fillPropfindResponseOnAddressbookRoot(psRoot *etree.Element, sUser string, propsQuery []*etree.Element){
 

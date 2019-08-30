@@ -3,7 +3,7 @@ Fennel
 
 ![Fennel](https://raw.github.com/swordlordcodingcrew/fennel/master/fennel_logo.png)
 
-**Fennel** (c) 2014-18 by [SwordLord - the coding crew](http://www.swordlord.com/)
+**Fennel** (c) 2014-19 by [SwordLord - the coding crew](http://www.swordlord.com/)
 
 ## Introduction ##
 

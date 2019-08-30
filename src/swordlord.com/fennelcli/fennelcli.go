@@ -39,6 +39,7 @@ func main() {
 
 	// Initialise env and params
 	fennelcore.InitConfig()
+	fennelcore.InitLog()
 
 	// Initialise database
 	// if there is an error, this function will quit the app

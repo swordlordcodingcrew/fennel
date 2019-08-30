@@ -58,8 +58,10 @@ func Put(w http.ResponseWriter, req *http.Request){
 
 	sUser, ok := req.Context().Value("auth_user").(string)
 	if !ok {
-		// TODO fail when there is no user, since this can't really happen!
-		sUser = ""
+
+		fmt.Println("err: could not find auth_user in context")
+		handler.RespondWithMessage(w, http.StatusPreconditionFailed, "No user supplied")
+		return
 	}
 
 	bodyBuffer, _ := ioutil.ReadAll(req.Body)
@@ -69,6 +71,7 @@ func Put(w http.ResponseWriter, req *http.Request){
 	vcard, err := tablemodule.AddVCard(sCard, sUser, sAB, isGroup, string(bodyBuffer))
 	if err != nil {
 
+		fmt.Println("err: could not add vcard " + sCard)
 		handler.RespondWithMessage(w, http.StatusPreconditionFailed, err.Error())
 		return
 	}
@@ -86,7 +89,7 @@ func Get(w http.ResponseWriter, req *http.Request){
 	if err != nil {
 
 		fmt.Println("err: could not find vcard " + sCard)
-		// TODO send error
+
 		handler.RespondWithMessage(w, http.StatusInternalServerError, err.Error())
 		return
 	}

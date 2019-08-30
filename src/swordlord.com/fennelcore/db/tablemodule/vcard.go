@@ -39,7 +39,7 @@ func ListVCardsPerAddressbook(addressbook string) {
 
 	var vcard [][]string
 
-	err, rows := FindVcardByAddressbook(addressbook)
+	err, rows := FindVcardsByAddressbook(addressbook)
 	if err != nil {
 
 		log.Printf("Error with VCARD in Addressbook %q: %s\n", addressbook, err)
@@ -97,12 +97,12 @@ func GetVCard(vcardId string) (model.VCARD, error) {
 	return vcard, nil
 }
 
-func FindVcardByAddressbook(addressbookID string) (error, []*model.VCARD)  {
+func FindVcardsByAddressbook(addressbookID string) (error, []*model.VCARD)  {
 
 	var vcard model.VCARD
 
 	db := fcdb.GetDB()
-	db = db.Model(vcard).Where("addressbook_id = ?", addressbookID)
+	db = db.Model(vcard).Where(model.VCARD{AddressbookId: addressbookID})
 
 	var rows []*model.VCARD
 

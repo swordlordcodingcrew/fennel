@@ -97,7 +97,7 @@ func SetStandardHTMLHeader(w http.ResponseWriter) {
 
 func RespondWithRedirect(w http.ResponseWriter, req *http.Request, uri string){
 
-	http.Redirect(w, req, uri, http.StatusFound)
+	http.Redirect(w, req, uri, http.StatusMovedPermanently)
 }
 
 

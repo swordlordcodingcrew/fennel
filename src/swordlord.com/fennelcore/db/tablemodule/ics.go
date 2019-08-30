@@ -5,7 +5,7 @@ package tablemodule
  **
  ** your lightweight CalDAV and CardDAV server
  **
- ** Copyright 2018 by SwordLord - the coding crew - http://www.swordlord.com
+ ** Copyright 2019 by SwordLord - the coding crew - http://www.swordlord.com
  ** and contributing authors
  **
  ** This program is free software; you can redistribute it and/or modify it
@@ -30,12 +30,64 @@ package tablemodule
 -----------------------------------------------------------------------------*/
 import (
 	"fmt"
+	"github.com/Jeffail/gabs"
+	"github.com/vjeantet/jodaTime"
 	"log"
+	"strings"
 	fcdb "swordlord.com/fennelcore"
 	"swordlord.com/fennelcore/db/model"
 	"time"
-	"github.com/vjeantet/jodaTime"
 )
+
+const DATEPARSER string = "yMd'T'Hms"
+const UTCMARKER string = "'Z'"
+
+func parseDatesAndFill(json *gabs.Container, ics *model.ICS) error{
+
+	//	if with TZID -> parse timezone, directly, otherwise...
+	//	DTSTART;TZID=Europe/Vatican:20190823T180200
+	//	DTEND;TZID=Europe/Vatican:20190823T190200
+
+	// TODO respect the TZID
+	for key, child := range json.Search("VCALENDAR", "VEVENT").ChildrenMap() {
+		if strings.HasPrefix(key, "DTSTART") {
+
+			format := DATEPARSER
+
+			sStart := child.Data().(string)
+			if sStart[len(sStart)-1:] == "Z" {
+				format += UTCMARKER
+			}
+
+			start, err := jodaTime.Parse(format, sStart)
+			if err != nil {
+				fcdb.LogErrorFmt("Error when parsing start date '%s' from VEVENT: %s", sStart, err.Error())
+				return err
+			}
+
+			ics.StartDate = start
+
+		} else if strings.HasPrefix(key, "DTEND") {
+
+			format := DATEPARSER
+
+			sEnd := child.Data().(string)
+			if sEnd[len(sEnd)-1:] == "Z" {
+				format += UTCMARKER
+			}
+
+			end, err := jodaTime.Parse(format, sEnd)
+			if err != nil {
+				fcdb.LogErrorFmt("Error when parsing end date '%s' from VEVENT: %s", sEnd, err.Error())
+				return err
+			}
+
+			ics.EndDate = end
+		}
+	}
+
+	return nil
+}
 
 func ListIcsPerCal(calendar string) {
 
@@ -57,36 +109,7 @@ func ListIcsPerCal(calendar string) {
 
 func AddIcs(calId string, user string, calendar string, content string) (model.ICS, error) {
 
-	var dtmStart *time.Time
-	var dtmEnd *time.Time
-
 	json := fcdb.ParseICS(content)
-
-	sStart, ok := json.Path("VCALENDAR.VEVENT.DTSTART").Data().(string)
-	if ok {
-
-		start, err := jodaTime.Parse("yMd'T'Hms'Z'", sStart)
-		if err == nil {
-
-			dtmStart = &start
-		}
-	}
-
-	sEnd, ok := json.Path("VCALENDAR.VEVENT.DTEND").Data().(string)
-	if ok {
-
-		end, err := jodaTime.Parse("yMd'T'Hms'Z'", sEnd)
-		if err == nil {
-
-			dtmEnd = &end
-		}
-	}
-	// value == 10.0, ok == true
-
-	return AddIcsParsed(calId, user, calendar, dtmStart, dtmEnd, content)
-}
-
-func AddIcsParsed(calId string, user string, calendar string, start *time.Time, end *time.Time, content string) (model.ICS, error) {
 
 	db := fcdb.GetDB()
 
@@ -94,12 +117,11 @@ func AddIcsParsed(calId string, user string, calendar string, start *time.Time, 
 
 	ics.CalendarId = calendar
 
-	if start != nil {
-		ics.StartDate = *start
+	err := parseDatesAndFill(json, &ics)
+	if err != nil {
+		return model.ICS{}, err
 	}
-	if end != nil {
-		ics.EndDate = *end
-	}
+
 	ics.Content = content
 
 	retDB := db.Create(&ics)
@@ -114,26 +136,36 @@ func AddIcsParsed(calId string, user string, calendar string, start *time.Time, 
 	return ics, nil
 }
 
-func UpdateIcs(name string, password string) error {
+func UpdateIcs(calId string, content string) (model.ICS, error) {
 
 	db := fcdb.GetDB()
 
-	pwd, err := hashPassword(password)
+	ics, err := GetICS(calId)
 	if err != nil {
-		log.Printf("Error with hashing password %q: %s\n", password, err )
-		return err
+		return model.ICS{}, err
 	}
 
-	retDB := db.Model(&model.ADB{}).Where("Id=?", name).Update("Token", pwd)
+	// todo update changed fields only
+	ics.Content = content
+	ics.UpdDat = time.Now()
+
+	json := fcdb.ParseICS(content)
+
+	err = parseDatesAndFill(json, &ics)
+	if err != nil {
+		return model.ICS{}, err
+	}
+
+	retDB := db.Save(&ics)
 
 	if retDB.Error != nil {
-		log.Printf("Error with Device %q: %s\n", name, retDB.Error)
-		return retDB.Error
+		log.Printf("Error with ICS %q: %s\n", calId, retDB.Error)
+		return model.ICS{}, retDB.Error
 	}
 
-	fmt.Printf("Device %s updated.\n", name)
+	fmt.Printf("ICS %s updated.\n", calId)
 
-	return nil
+	return ics, nil
 }
 
 func GetICS(icsId string) (model.ICS, error) {
@@ -250,3 +282,4 @@ func DeleteIcs(icsId string) error {
 
 	return ret.Error
 }
+

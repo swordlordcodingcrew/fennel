@@ -29,6 +29,7 @@ package fennelcore
  **
 -----------------------------------------------------------------------------*/
 import (
+	"github.com/fsnotify/fsnotify"
 	"github.com/spf13/viper"
 	"io/ioutil"
 	"log"
@@ -54,10 +55,10 @@ func InitConfig() {
 	viper.SetConfigType("json")
 
 	// viper allows watching of config files for changes (and potential reloads)
-	// viper.WatchConfig()
-	// viper.OnConfigChange(func(e fsnotify.Event) {
+	viper.WatchConfig()
+	viper.OnConfigChange(func(e fsnotify.Event) {
 	//	fmt.Println("Config file changed:", e.Name)
-	// })
+	})
 
 	// Find and read the config file
 	if err := viper.ReadInConfig(); err != nil {
@@ -90,9 +91,16 @@ func GetStringFromConfig(key string) string {
 	return viper.GetString(key)
 }
 
-func GetEnv() string {
+func GetLogLevel() string {
 
-	return viper.GetString("env")
+	loglevel := viper.GetString("log.level")
+	if loglevel == "" {
+
+		return "warn"
+	} else {
+
+		return loglevel
+	}
 }
 
 //
@@ -105,7 +113,9 @@ func WriteStandardConfig() (error) {
 
 var defaultConfig = []byte(`
 {
-    "env": "dev",
+  "log": {
+    "level": "debug"
+  },
   "www": {
       "host": "127.0.0.1",
       "port": "8888"

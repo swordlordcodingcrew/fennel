@@ -2,7 +2,7 @@ language: go
 sudo: false
 
 go:
-  - "1.10"
+  - "1.12"
 
 env:
   global:
@@ -30,7 +30,6 @@ before_install:
   - go get -u -v github.com/jinzhu/gorm
   - go get -u -v github.com/spf13/cobra
   - go get -u -v github.com/satori/go.uuid
-  - go get -u -v github.com/mattn/go-sqlite3
   - go get -u -v github.com/olekukonko/tablewriter
   - go get -u -v github.com/beevik/etree
   - go get -u -v github.com/jinzhu/now

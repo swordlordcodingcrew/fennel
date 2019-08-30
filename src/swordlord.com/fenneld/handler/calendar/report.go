@@ -152,7 +152,7 @@ func handleReportCalendarQuery(w http.ResponseWriter, uri string, nodeQuery *etr
 
 func appendIcsAsResponseToMultistat(ms *etree.Element, ics *model.ICS, props []*etree.Element, uri string, supportedCalComponent string){
 
-	propstat := handler.AddResponseToMultistat(ms, uri + "/" + ics.Pkey + ".ics")
+	propstat := handler.AddResponseToMultistat(ms, uri + ics.Pkey + ".ics")
 
 	// values to return from: /B:calendar-query/A:prop
 	for _, prop := range props {
