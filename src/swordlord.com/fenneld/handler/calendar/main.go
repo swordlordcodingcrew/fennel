@@ -56,6 +56,7 @@ type Xmlprop struct {
 	CalendarOrder			int	`xml:"calendar-order"`
 	CalendarTimezone		string	`xml:"calendar-timezone"`
 	CalendarColour			string	`xml:"calendar-color"`
+	FreeBusySet				string	`xml:"calendar-free-busy-set"`
 }
 
 func Proppatch(w http.ResponseWriter, req *http.Request){
@@ -120,28 +121,30 @@ func MakeCalendar(w http.ResponseWriter, req *http.Request){
 
 	sUser, ok := req.Context().Value("auth_user").(string)
 	if !ok {
-		// TODO fail when there is no user, since this can't really happen!
-		sUser = ""
+		// something went wrong with the authenticated user (missing?)
+		handler.RespondWithMessage(w, http.StatusBadRequest, "no user")
+		return
 	}
-	//var dm Xmlmakecalendar
 
 	decoder := xml.NewDecoder(req.Body)
 	sentCal := Xmlmakecalendar{}
 	err := decoder.Decode(&sentCal)
 	if err != nil {
 
-		// TODO: or internal server error?
-		handler.RespondWithMessage(w, http.StatusPreconditionFailed, err.Error())
+		handler.RespondWithMessage(w, http.StatusInternalServerError, err.Error())
 		return
 	}
+
+	// for debugging...
 	// fmt.Println(err)
 	// fmt.Println(sentCal)
-
 	// fmt.Println(sentCal.Set.Prop.Displayname)
 
 	prop := sentCal.Set.Prop
 
 	// TODO: set freebusyset only to yes if tag exists ->"YES"
+	fmt.Println(prop.FreeBusySet)
+
 	// TODO: set supported cal component to "VEVENT" if tag exists
 
 	cal, err := tablemodule.AddCal(sUser, sCal, prop.Displayname, prop.CalendarColour, "YES", prop.CalendarOrder, "VEVENT", 0, prop.CalendarTimezone)
