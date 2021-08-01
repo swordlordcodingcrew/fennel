@@ -1,4 +1,5 @@
 package model
+
 /*-----------------------------------------------------------------------------
  **
  ** - Fennel -
@@ -35,16 +36,16 @@ import (
 )
 
 type Group struct {
-	Pkey    		string `gorm:"primary_key"`
-	Description 	string
-	CrtDat	time.Time `sql:"DEFAULT:current_timestamp"`
-	UpdDat	time.Time `sql:"DEFAULT:current_timestamp"`
+	Pkey        string `gorm:"primary_key"`
+	Description string
+	CrtDat      time.Time `sql:"DEFAULT:current_timestamp"`
+	UpdDat      time.Time `sql:"DEFAULT:current_timestamp"`
 }
 
 func (m *Group) BeforeUpdate(scope *gorm.Scope) (err error) {
 
 	scope.SetColumn("UpdDat", time.Now())
-	return  nil
+	return nil
 }
 
 /*

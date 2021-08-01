@@ -1,4 +1,5 @@
 package handler
+
 /*-----------------------------------------------------------------------------
  **
  ** - Wombag -
@@ -31,7 +32,7 @@ package handler
 import (
 	"fmt"
 	"net/http"
-//	"github.com/swordlordcodingcrew/fennel/fenneld/render"
+	//	"github.com/swordlordcodingcrew/fennel/fenneld/render"
 	"github.com/beevik/etree"
 )
 
@@ -65,20 +66,19 @@ func bodyAllowedForStatus(status int) bool {
 	return true
 }
 
-
-func NotImplementedYet(w http.ResponseWriter){
+func NotImplementedYet(w http.ResponseWriter) {
 
 	w.WriteHeader(http.StatusNotImplemented)
 	w.Header().Set("Content-Type", "application/json")
 	fmt.Fprintf(w, "This function is not implemented yet\n")
 }
 
-func SetAllowHeader(w http.ResponseWriter){
+func SetAllowHeader(w http.ResponseWriter) {
 
 	w.Header().Add("Allow", "OPTIONS, PROPFIND, HEAD, GET, REPORT, PROPPATCH, PUT, DELETE, POST, COPY, MOVE")
 }
 
-func SetDAVHeader(w http.ResponseWriter){
+func SetDAVHeader(w http.ResponseWriter) {
 
 	w.Header().Set("DAV", "1, 3, extended-mkcol, calendar-access, calendar-schedule, calendar-proxy, calendarserver-sharing, calendarserver-subscribed, addressbook, access-control, calendarserver-principal-property-search")
 }
@@ -95,34 +95,33 @@ func SetStandardHTMLHeader(w http.ResponseWriter) {
 	w.Header().Set("Server", "Fennel")
 }
 
-func RespondWithRedirect(w http.ResponseWriter, req *http.Request, uri string){
+func RespondWithRedirect(w http.ResponseWriter, req *http.Request, uri string) {
 
 	http.Redirect(w, req, uri, http.StatusMovedPermanently)
 }
 
-
-func RespondWithMessage(w http.ResponseWriter, status int, message string){
+func RespondWithMessage(w http.ResponseWriter, status int, message string) {
 
 	w.WriteHeader(status)
 	w.Header().Set("Content-Type", "application/json")
-	fmt.Fprintf(w, message + "\n")
+	fmt.Fprintf(w, message+"\n")
 }
 
-func RespondWithICS(w http.ResponseWriter, status int, ics string){
+func RespondWithICS(w http.ResponseWriter, status int, ics string) {
 
 	w.WriteHeader(status)
 	w.Header().Set("Content-Type", "text/calendar")
-	fmt.Fprintf(w, ics + "\n")
+	fmt.Fprintf(w, ics+"\n")
 }
 
-func RespondWithVCARD(w http.ResponseWriter, status int, vcard string){
+func RespondWithVCARD(w http.ResponseWriter, status int, vcard string) {
 
 	w.WriteHeader(status)
 	w.Header().Set("Content-Type", "text/vcard; charset=utf-8")
-	fmt.Fprintf(w, vcard + "\n")
+	fmt.Fprintf(w, vcard+"\n")
 }
 
-func RespondWithUnauthenticated(w http.ResponseWriter){
+func RespondWithUnauthenticated(w http.ResponseWriter) {
 
 	w.Header().Set("WWW-Authenticate", "Basic realm=\"Fennel\"")
 	w.WriteHeader(http.StatusUnauthorized)
@@ -189,15 +188,15 @@ func GetMultistatusDocWOResponseTag() (*etree.Document, *etree.Element) {
 	ms.Space = "d"
 
 	/*
-	<d:multistatus xmlns:d="DAV:"
-				xmlns:s="http://github.com/swordlordcodingcrew/fennel/ns"
-				xmlns:cal="urn:ietf:params:xml:ns:caldav"
-				xmlns:cs="http://calendarserver.org/ns/"
-				xmlns:card="urn:ietf:params:xml:ns:carddav">
-	  <d:response>
-		<d:href>/card/user/</d:href>
-		<d:propstat>
-		  <d:prop>
+		<d:multistatus xmlns:d="DAV:"
+					xmlns:s="http://github.com/swordlordcodingcrew/fennel/ns"
+					xmlns:cal="urn:ietf:params:xml:ns:caldav"
+					xmlns:cs="http://calendarserver.org/ns/"
+					xmlns:card="urn:ietf:params:xml:ns:carddav">
+		  <d:response>
+			<d:href>/card/user/</d:href>
+			<d:propstat>
+			  <d:prop>
 	*/
 	ms.CreateAttr("xmlns:d", "DAV:")
 	ms.CreateAttr("xmlns:d", "DAV:")
@@ -208,7 +207,6 @@ func GetMultistatusDocWOResponseTag() (*etree.Document, *etree.Element) {
 
 	return doc, ms
 }
-
 
 func AddResponseWStatusToMultistat(ms *etree.Element, uri string, httpStatus int) *etree.Element {
 
@@ -239,7 +237,7 @@ func AddStatusToPropstat(httpStatus int, propstat *etree.Element) {
 	status := propstat.CreateElement("status")
 	status.Space = "d"
 
-	switch(httpStatus) {
+	switch httpStatus {
 
 	case http.StatusNotFound:
 		status.SetText("HTTP/1.1 404 Not Found")

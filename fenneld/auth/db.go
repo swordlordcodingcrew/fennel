@@ -1,4 +1,5 @@
 package auth
+
 /*-----------------------------------------------------------------------------
  **
  ** - Fennel -
@@ -30,7 +31,7 @@ package auth
 -----------------------------------------------------------------------------*/
 
 import (
-									"errors"
+	"errors"
 	"github.com/swordlordcodingcrew/fennel/fennelcore/db/tablemodule"
 )
 

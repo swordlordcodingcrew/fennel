@@ -1,4 +1,5 @@
 package tablemodule
+
 /*-----------------------------------------------------------------------------
  **
  ** - Fennel -
@@ -30,9 +31,9 @@ package tablemodule
 -----------------------------------------------------------------------------*/
 import (
 	"fmt"
-	"log"
 	fcdb "github.com/swordlordcodingcrew/fennel/fennelcore"
 	"github.com/swordlordcodingcrew/fennel/fennelcore/db/model"
+	"log"
 )
 
 func ListCal() {
@@ -86,7 +87,6 @@ func GetCal(calId string) (model.CAL, error) {
 
 	var cal model.CAL
 	retDB := db.First(&cal, "pkey = ?", calId)
-
 
 	//	retDB := db.Model(&model.CAL{}).Where("pkey=?", calId)
 	//retDB := db.Where("Pkey = ?", calId).First(&model.CAL{})

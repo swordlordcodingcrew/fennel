@@ -1,4 +1,5 @@
 package cmd
+
 /*-----------------------------------------------------------------------------
  **
  ** - Fennel -
@@ -30,56 +31,56 @@ package cmd
 -----------------------------------------------------------------------------*/
 
 import (
+	"fmt"
 	"github.com/spf13/cobra"
 	"github.com/swordlordcodingcrew/fennel/fennelcore/db/tablemodule"
-	"fmt"
 )
 
 // userCmd represents the domain command
 var userCmd = &cobra.Command{
 	Use:   "user",
 	Short: "Add, change and manage your users.",
-	Long: `Add, change and manage your users. Requires a subcommand.`,
-	RunE: nil,
+	Long:  `Add, change and manage your users. Requires a subcommand.`,
+	RunE:  nil,
 }
 
 var userListCmd = &cobra.Command{
 	Use:   "list",
 	Short: "List all users.",
-	Long: `List all users.`,
-	RunE: ListUser,
+	Long:  `List all users.`,
+	RunE:  ListUser,
 }
 
 var userAddCmd = &cobra.Command{
 	Use:   "add [username] [password]",
 	Short: "Add new user to this instance of Fennel.",
-	Long: `Add new user to this instance of Fennel.`,
-	Args: cobra.ExactArgs(2),
-	RunE: AddUser,
+	Long:  `Add new user to this instance of Fennel.`,
+	Args:  cobra.ExactArgs(2),
+	RunE:  AddUser,
 }
 
 var userUpdateCmd = &cobra.Command{
 	Use:   "update [userid] [password] [comment]",
 	Short: "Update the password and comment of the user.",
-	Long: `Update the password of the user. Comment field can be left empty`,
-	Args: cobra.MinimumNArgs(2),
-	RunE: UpdateUser,
+	Long:  `Update the password of the user. Comment field can be left empty`,
+	Args:  cobra.MinimumNArgs(2),
+	RunE:  UpdateUser,
 }
 
 var userVerifyCmd = &cobra.Command{
 	Use:   "verify [userid] [pwd]",
 	Short: "Verifies the password of given user.",
-	Long: `Verifies the password of the given user. Can be used to check if memorised password is correct.`,
-	Args: cobra.ExactArgs(2),
-	RunE: VerifyUser,
+	Long:  `Verifies the password of the given user. Can be used to check if memorised password is correct.`,
+	Args:  cobra.ExactArgs(2),
+	RunE:  VerifyUser,
 }
 
 var userDeleteCmd = &cobra.Command{
 	Use:   "delete [userid]",
 	Short: "Deletes a user and all of her devices.",
-	Long: `Deletes a user and all of his or her devices.`,
-	Args: cobra.ExactArgs(1),
-	RunE: DeleteUser,
+	Long:  `Deletes a user and all of his or her devices.`,
+	Args:  cobra.ExactArgs(1),
+	RunE:  DeleteUser,
 }
 
 func ListUser(cmd *cobra.Command, args []string) error {

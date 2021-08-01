@@ -1,4 +1,5 @@
 package model
+
 /*-----------------------------------------------------------------------------
  **
  ** - Fennel -
@@ -35,19 +36,18 @@ import (
 )
 
 type ADB struct {
-	Pkey    	string `gorm:"primary_key"`
-	Owner		string `sql:"NOT NULL"`
-	Name		string `sql:"NOT NULL"`
-	Synctoken	int `sql:"NOT NULL; DEFAULT:0"`
-	CrtDat		time.Time `sql:"DEFAULT:current_timestamp"`
-	UpdDat		time.Time `sql:"DEFAULT:current_timestamp"`
+	Pkey      string    `gorm:"primary_key"`
+	Owner     string    `sql:"NOT NULL"`
+	Name      string    `sql:"NOT NULL"`
+	Synctoken int       `sql:"NOT NULL; DEFAULT:0"`
+	CrtDat    time.Time `sql:"DEFAULT:current_timestamp"`
+	UpdDat    time.Time `sql:"DEFAULT:current_timestamp"`
 }
-
 
 func (m *ADB) BeforeUpdate(scope *gorm.Scope) (err error) {
 
 	scope.SetColumn("UpdDat", time.Now())
-	return  nil
+	return nil
 }
 
 /*

@@ -1,4 +1,5 @@
 package fennelcore
+
 /*-----------------------------------------------------------------------------
  **
  ** - Fennel -
@@ -29,11 +30,11 @@ package fennelcore
  **
 -----------------------------------------------------------------------------*/
 import (
-	"os"
 	"github.com/olekukonko/tablewriter"
+	"os"
 )
 
-func WriteTable(header []string, data [][]string)  {
+func WriteTable(header []string, data [][]string) {
 
 	table := tablewriter.NewWriter(os.Stdout)
 	table.SetHeader(header)

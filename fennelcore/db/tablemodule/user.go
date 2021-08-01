@@ -1,4 +1,5 @@
 package tablemodule
+
 /*-----------------------------------------------------------------------------
  **
  ** - Fennel -
@@ -30,16 +31,16 @@ package tablemodule
 -----------------------------------------------------------------------------*/
 import (
 	"fmt"
-	"golang.org/x/crypto/bcrypt"
-	"log"
 	fc "github.com/swordlordcodingcrew/fennel/fennelcore"
 	"github.com/swordlordcodingcrew/fennel/fennelcore/db/model"
+	"golang.org/x/crypto/bcrypt"
+	"log"
 )
 
 // TODO return permission, not true/false. when empty permission, no access...
 func ValidateUserInDB(name, password string) (bool, []string) {
 
-	permissions := []string{ }
+	permissions := []string{}
 
 	// TODO get permissions from db
 	permissions = append(permissions, "permission_from_DB")
@@ -51,7 +52,7 @@ func ValidateUserInDB(name, password string) (bool, []string) {
 	retDB := db.Where("name = ?", name).First(&user)
 
 	if retDB.Error != nil {
-		log.Printf("Login of user failed %q: %s\n", name, retDB.Error )
+		log.Printf("Login of user failed %q: %s\n", name, retDB.Error)
 		return false, permissions
 	}
 
@@ -64,7 +65,7 @@ func ValidateUserInDB(name, password string) (bool, []string) {
 
 	err := checkHashedPassword(user.Password, password)
 	if err != nil {
-		log.Printf("Login of user failed %q: %s\n", name, err )
+		log.Printf("Login of user failed %q: %s\n", name, err)
 		return false, permissions
 	} else {
 
@@ -84,7 +85,7 @@ func ListUser() {
 
 	for _, user := range rows {
 
-		users = append(users, []string{ user.Name, user.Comment, user.CrtDat.Format("2006-01-02 15:04:05"), user.UpdDat.Format("2006-01-02 15:04:05")})
+		users = append(users, []string{user.Name, user.Comment, user.CrtDat.Format("2006-01-02 15:04:05"), user.UpdDat.Format("2006-01-02 15:04:05")})
 	}
 
 	fc.WriteTable([]string{"Name", "Comment", "CrtDat", "UpdDat"}, users)
@@ -96,7 +97,7 @@ func AddUser(name string, password string) (model.User, error) {
 
 	pwd, err := hashPassword(password)
 	if err != nil {
-		log.Printf("Error with hashing password %q: %s\n", password, err )
+		log.Printf("Error with hashing password %q: %s\n", password, err)
 		return model.User{}, err
 	}
 
@@ -104,7 +105,7 @@ func AddUser(name string, password string) (model.User, error) {
 	retDB := db.Create(&user)
 
 	if retDB.Error != nil {
-		log.Printf("Error with User %q: %s\n", name, retDB.Error )
+		log.Printf("Error with User %q: %s\n", name, retDB.Error)
 		log.Fatal(retDB.Error)
 		return model.User{}, retDB.Error
 	}
@@ -129,7 +130,7 @@ func UpdateUser(name string, password string, comment string) error {
 
 	retDB := db.Model(&user).Where("name=?", name).Update(&user)
 	if retDB.Error != nil {
-		log.Printf("Error with User %q: %s\n", name, retDB.Error )
+		log.Printf("Error with User %q: %s\n", name, retDB.Error)
 		return retDB.Error
 	}
 
@@ -147,7 +148,7 @@ func DeleteUser(name string) {
 	retDB := db.Where("name = ?", name).First(&user)
 
 	if retDB.Error != nil {
-		log.Printf("Error with User %q: %s\n", name, retDB.Error )
+		log.Printf("Error with User %q: %s\n", name, retDB.Error)
 		log.Fatal(retDB.Error)
 		return
 	}
@@ -176,8 +177,7 @@ func hashPassword(pwd string) (string, error) {
 	return string(hashedPassword), nil
 }
 
-
-func checkHashedPassword(hashedPassword string, password string) (error) {
+func checkHashedPassword(hashedPassword string, password string) error {
 
 	pwd := []byte(password)
 	hashedPwd := []byte(hashedPassword)

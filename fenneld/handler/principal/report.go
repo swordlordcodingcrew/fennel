@@ -1,4 +1,5 @@
 package principal
+
 /*-----------------------------------------------------------------------------
  **
  ** - Fennel -
@@ -29,10 +30,10 @@ package principal
  **
 -----------------------------------------------------------------------------*/
 import (
-	"net/http"
-	"github.com/swordlordcodingcrew/fennel/fenneld/handler"
 	"fmt"
 	"github.com/beevik/etree"
+	"github.com/swordlordcodingcrew/fennel/fenneld/handler"
+	"net/http"
 )
 
 func Report(w http.ResponseWriter, req *http.Request) {
@@ -51,10 +52,10 @@ func Report(w http.ResponseWriter, req *http.Request) {
 	name := root.Tag
 
 	/*
-	<?xml version="1.0" encoding="UTF-8"?>
-	<A:principal-search-property-set xmlns:A="DAV:"/>
+		<?xml version="1.0" encoding="UTF-8"?>
+		<A:principal-search-property-set xmlns:A="DAV:"/>
 	*/
-	
+
 	switch name {
 
 	case "principal-search-property-set":
@@ -67,30 +68,30 @@ func Report(w http.ResponseWriter, req *http.Request) {
 	}
 }
 
-func handleSearchPropertySet(w http.ResponseWriter, url string, root *etree.Element){
+func handleSearchPropertySet(w http.ResponseWriter, url string, root *etree.Element) {
 
 	/*
-	<?xml version="1.0"?>
-	<d:principal-search-property-set xmlns:d="DAV:" ...>
-	  <d:principal-search-property>
-		<d:prop>
-		  <d:displayname/>
-		</d:prop>
-		<d:description xml:lang="en">Display name</d:description>
-	  </d:principal-search-property>
-	  <d:principal-search-property>
-		<d:prop>
-		  <s:email-address/>
-		</d:prop>
-		<d:description xml:lang="en">Email address</d:description>
-	  </d:principal-search-property>
-	  <d:principal-search-property>
-		<d:prop>
-		  <cal:calendar-user-address-set/>
-		</d:prop>
-		<d:description xml:lang="en">Calendar address</d:description>
-	  </d:principal-search-property>
-	</d:principal-search-property-set>
+		<?xml version="1.0"?>
+		<d:principal-search-property-set xmlns:d="DAV:" ...>
+		  <d:principal-search-property>
+			<d:prop>
+			  <d:displayname/>
+			</d:prop>
+			<d:description xml:lang="en">Display name</d:description>
+		  </d:principal-search-property>
+		  <d:principal-search-property>
+			<d:prop>
+			  <s:email-address/>
+			</d:prop>
+			<d:description xml:lang="en">Email address</d:description>
+		  </d:principal-search-property>
+		  <d:principal-search-property>
+			<d:prop>
+			  <cal:calendar-user-address-set/>
+			</d:prop>
+			<d:description xml:lang="en">Calendar address</d:description>
+		  </d:principal-search-property>
+		</d:principal-search-property-set>
 	*/
 
 	dRet := etree.NewDocument()
@@ -117,12 +118,12 @@ func handleSearchPropertySet(w http.ResponseWriter, url string, root *etree.Elem
 func addPrincipalSearchProperty(psps *etree.Element, prop string, ns string, desc string) {
 
 	/*
-	<d:principal-search-property>
-		<d:prop>
-		  <cal:calendar-user-address-set/>
-		</d:prop>
-		<d:description xml:lang="en">Calendar address</d:description>
-	  </d:principal-search-property>
+		<d:principal-search-property>
+			<d:prop>
+			  <cal:calendar-user-address-set/>
+			</d:prop>
+			<d:description xml:lang="en">Calendar address</d:description>
+		  </d:principal-search-property>
 	*/
 
 	psp := psps.CreateElement("principal-search-property")

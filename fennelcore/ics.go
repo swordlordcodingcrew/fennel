@@ -1,4 +1,5 @@
 package fennelcore
+
 /*-----------------------------------------------------------------------------
  **
  ** - Fennel -
@@ -31,8 +32,8 @@ package fennelcore
 
 import (
 	"github.com/Jeffail/gabs"
-	"strings"
 	"regexp"
+	"strings"
 )
 
 var (
@@ -92,7 +93,7 @@ func generateJSON(file string) string {
 		// Unfold the lines, if no : at any position, assume it is folded with previous
 		if !strings.Contains(line, ":") {
 
-			lines[len(lines) - 1] = lines[len(lines) - 1] + line
+			lines[len(lines)-1] = lines[len(lines)-1] + line
 		}
 
 		// line seems to be ok, add it to cleaned list
@@ -112,7 +113,7 @@ func generateJSON(file string) string {
 
 			// TODO: terrible hack, fixme
 			if strings.HasSuffix(result, ",") {
-				result = result[0:len(result)-1]
+				result = result[0 : len(result)-1]
 			}
 
 			result += "},"
@@ -136,8 +137,8 @@ func generateJSON(file string) string {
 	}
 
 	// TODO: terrible hack, fixme
-	if strings.HasSuffix(result, ",")	{
-		result = result[0:len(result)-1]
+	if strings.HasSuffix(result, ",") {
+		result = result[0 : len(result)-1]
 	}
 
 	result = "{" + result + "}"

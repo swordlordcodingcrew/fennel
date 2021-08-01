@@ -1,4 +1,5 @@
 package handler
+
 /*-----------------------------------------------------------------------------
  **
  ** - Fennel -
@@ -30,7 +31,7 @@ package handler
 -----------------------------------------------------------------------------*/
 import "net/http"
 
-func OnRoot(w http.ResponseWriter, req *http.Request){
+func OnRoot(w http.ResponseWriter, req *http.Request) {
 
 	RespondWithRedirect(w, req, "/p/")
 }

@@ -1,4 +1,5 @@
 package model
+
 /*-----------------------------------------------------------------------------
  **
  ** - Fennel -
@@ -32,20 +33,20 @@ package model
 import (
 	"github.com/jinzhu/gorm"
 	"time"
-	)
+)
 
 type User struct {
-	Name 		string `gorm:"primary_key",sql:"NOT NULL"`
-	Password 	string `sql:"NOT NULL"`
-	Comment 	string
-	CrtDat		time.Time `sql:"DEFAULT:current_timestamp"`
-	UpdDat		time.Time `sql:"DEFAULT:current_timestamp"`
+	Name     string `gorm:"primary_key",sql:"NOT NULL"`
+	Password string `sql:"NOT NULL"`
+	Comment  string
+	CrtDat   time.Time `sql:"DEFAULT:current_timestamp"`
+	UpdDat   time.Time `sql:"DEFAULT:current_timestamp"`
 }
 
 func (m *User) BeforeUpdate(scope *gorm.Scope) (err error) {
 
 	scope.SetColumn("UpdDat", time.Now())
-	return  nil
+	return nil
 }
 
 /*

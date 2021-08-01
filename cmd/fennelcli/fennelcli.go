@@ -1,4 +1,5 @@
 package main
+
 /*-----------------------------------------------------------------------------
  **
  ** - Fennel -
@@ -30,9 +31,9 @@ package main
 -----------------------------------------------------------------------------*/
 import (
 	"fmt"
-	"os"
-	"github.com/swordlordcodingcrew/fennel/fennelcore"
 	"github.com/swordlordcodingcrew/fennel/fennelcli/cmd"
+	"github.com/swordlordcodingcrew/fennel/fennelcore"
+	"os"
 )
 
 func main() {

@@ -1,4 +1,5 @@
 package fennelcore
+
 /*-----------------------------------------------------------------------------
  **
  ** - Fennel -
@@ -29,16 +30,16 @@ package fennelcore
  **
 -----------------------------------------------------------------------------*/
 import (
-	"log"
 	"github.com/jinzhu/gorm"
-	"github.com/swordlordcodingcrew/fennel/fennelcore/db/model"
 	_ "github.com/jinzhu/gorm/dialects/sqlite"
+	"github.com/swordlordcodingcrew/fennel/fennelcore/db/model"
+	"log"
 )
 
 var db gorm.DB
 
 //
-func InitDatabase(){
+func InitDatabase() {
 
 	dialect := GetStringFromConfig("db.dialect")
 	args := GetStringFromConfig("db.args")
@@ -74,11 +75,11 @@ func InitDatabase(){
 func updateCreated(scope *gorm.Scope) {
 
 	/*
-	log.Println("updatecreated")
+		log.Println("updatecreated")
 
-	if scope.HasColumn("UpdDat") {
-		scope.SetColumn("UpdDat", time.Now())
-	}
+		if scope.HasColumn("UpdDat") {
+			scope.SetColumn("UpdDat", time.Now())
+		}
 	*/
 }
 

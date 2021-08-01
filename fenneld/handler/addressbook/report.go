@@ -1,4 +1,5 @@
 package addressbook
+
 /*-----------------------------------------------------------------------------
  **
  ** - Fennel -
@@ -30,66 +31,66 @@ package addressbook
 -----------------------------------------------------------------------------*/
 
 import (
-	"net/http"
-	"github.com/swordlordcodingcrew/fennel/fenneld/handler"
-	"github.com/gorilla/mux"
-	"github.com/beevik/etree"
 	"fmt"
-	"strings"
-	"github.com/swordlordcodingcrew/fennel/fennelcore/db/tablemodule"
+	"github.com/beevik/etree"
+	"github.com/gorilla/mux"
 	"github.com/swordlordcodingcrew/fennel/fennelcore/db/model"
+	"github.com/swordlordcodingcrew/fennel/fennelcore/db/tablemodule"
+	"github.com/swordlordcodingcrew/fennel/fenneld/handler"
+	"net/http"
 	"strconv"
+	"strings"
 )
 
-func Report(w http.ResponseWriter, req *http.Request){
+func Report(w http.ResponseWriter, req *http.Request) {
 
 	// REPORT https://dav.fruux.com/addressbooks/user/addressbookid/
 
 	/*
-	<?xml version="1.0" encoding="UTF-8"?>
-<A:sync-collection xmlns:A="DAV:">
-  <A:sync-token>http://sabre.io/ns/sync/18</A:sync-token>
-  <A:sync-level>1</A:sync-level>
-  <A:prop>
-    <A:getetag/>
-  </A:prop>
-</A:sync-collection>
+		<?xml version="1.0" encoding="UTF-8"?>
+	<A:sync-collection xmlns:A="DAV:">
+	  <A:sync-token>http://sabre.io/ns/sync/18</A:sync-token>
+	  <A:sync-level>1</A:sync-level>
+	  <A:prop>
+	    <A:getetag/>
+	  </A:prop>
+	</A:sync-collection>
 
-	<?xml version="1.0"?>
-<d:multistatus xmlns:d="DAV:" xmlns:s="http://sabredav.org/ns" xmlns:fx="http://fruux.com/ns"
-xmlns:cal="urn:ietf:params:xml:ns:caldav" xmlns:cs="http://calendarserver.org/ns/" xmlns:card="urn:ietf:params:xml:ns:carddav">
-  <d:sync-token>http://sabre.io/ns/sync/18</d:sync-token>
-</d:multistatus>
-
-
-	resp.
+		<?xml version="1.0"?>
+	<d:multistatus xmlns:d="DAV:" xmlns:s="http://sabredav.org/ns" xmlns:fx="http://fruux.com/ns"
+	xmlns:cal="urn:ietf:params:xml:ns:caldav" xmlns:cs="http://calendarserver.org/ns/" xmlns:card="urn:ietf:params:xml:ns:carddav">
+	  <d:sync-token>http://sabre.io/ns/sync/18</d:sync-token>
+	</d:multistatus>
 
 
-<d:multistatus xmlns:d="DAV:" xmlns:s="http://sabredav.org/ns" xmlns:fx="http://fruux.com/ns"
-xmlns:cal="urn:ietf:params:xml:ns:caldav" xmlns:cs="http://calendarserver.org/ns/"
-xmlns:card="urn:ietf:params:xml:ns:carddav">
-  <d:response>
+		resp.
 
-<d:href>/addressbooks/a3298271331/8ec6424c-ede3-4a55-8613-e760df985cac/6251687E-BF17-4B5B-AA4C-95A7D22DF020.vcf</d:href>
-    <d:propstat>
-      <d:prop>
-        <d:getetag>&quot;39687715-66286691&quot;</d:getetag>
-      </d:prop>
-      <d:status>HTTP/1.1 200 OK</d:status>
-    </d:propstat>
-  </d:response>
-  <d:response>
 
-<d:href>/addressbooks/a3298271331/8ec6424c-ede3-4a55-8613-e760df985cac/dc6789c8-4299-4360-9f2c-5781962d92aa.vcf</d:href>
-    <d:propstat>
-      <d:prop>
-        <d:getetag>&quot;8767949-66286692&quot;</d:getetag>
-      </d:prop>
-      <d:status>HTTP/1.1 200 OK</d:status>
-    </d:propstat>
-  </d:response>
-  <d:sync-token>http://sabre.io/ns/sync/20</d:sync-token>
-</d:multistatus>
+	<d:multistatus xmlns:d="DAV:" xmlns:s="http://sabredav.org/ns" xmlns:fx="http://fruux.com/ns"
+	xmlns:cal="urn:ietf:params:xml:ns:caldav" xmlns:cs="http://calendarserver.org/ns/"
+	xmlns:card="urn:ietf:params:xml:ns:carddav">
+	  <d:response>
+
+	<d:href>/addressbooks/a3298271331/8ec6424c-ede3-4a55-8613-e760df985cac/6251687E-BF17-4B5B-AA4C-95A7D22DF020.vcf</d:href>
+	    <d:propstat>
+	      <d:prop>
+	        <d:getetag>&quot;39687715-66286691&quot;</d:getetag>
+	      </d:prop>
+	      <d:status>HTTP/1.1 200 OK</d:status>
+	    </d:propstat>
+	  </d:response>
+	  <d:response>
+
+	<d:href>/addressbooks/a3298271331/8ec6424c-ede3-4a55-8613-e760df985cac/dc6789c8-4299-4360-9f2c-5781962d92aa.vcf</d:href>
+	    <d:propstat>
+	      <d:prop>
+	        <d:getetag>&quot;8767949-66286692&quot;</d:getetag>
+	      </d:prop>
+	      <d:status>HTTP/1.1 200 OK</d:status>
+	    </d:propstat>
+	  </d:response>
+	  <d:sync-token>http://sabre.io/ns/sync/20</d:sync-token>
+	</d:multistatus>
 
 	*/
 
@@ -99,11 +100,11 @@ xmlns:card="urn:ietf:params:xml:ns:carddav">
 
 	// todo do we need the logged in user?
 	/*
-	sUser, ok := req.Context().Value("auth_user").(string)
-	if !ok {
-		// TODO fail when there is no user, since this can't really happen!
-		sUser = ""
-	}
+		sUser, ok := req.Context().Value("auth_user").(string)
+		if !ok {
+			// TODO fail when there is no user, since this can't really happen!
+			sUser = ""
+		}
 	*/
 
 	doc := etree.NewDocument()
@@ -121,17 +122,17 @@ xmlns:card="urn:ietf:params:xml:ns:carddav">
 
 	switch name {
 
-		case "sync-collection":
-			handleReportSyncCollection(w, req.RequestURI, root, sUser, sAB)
+	case "sync-collection":
+		handleReportSyncCollection(w, req.RequestURI, root, sUser, sAB)
 
-		case "addressbook-multiget":
-			handleReportAddressbookMultiget(w, req.RequestURI, root, sUser, sAB)
+	case "addressbook-multiget":
+		handleReportAddressbookMultiget(w, req.RequestURI, root, sUser, sAB)
 
-		default:
-			if name != "text" {
-				fmt.Println("CARD-Report: root not handled: " + name)
-				handler.RespondWithMessage(w, http.StatusInternalServerError, "")
-			}
+	default:
+		if name != "text" {
+			fmt.Println("CARD-Report: root not handled: " + name)
+			handler.RespondWithMessage(w, http.StatusInternalServerError, "")
+		}
 	}
 }
 
@@ -147,7 +148,7 @@ func handleReportSyncCollection(w http.ResponseWriter, uri string, root *etree.E
 
 		//fmt.Println(e.Tag)
 		name := e.Tag
-		switch (name) {
+		switch name {
 
 		case "sync-token":
 			syncToken = e.Text()
@@ -192,13 +193,13 @@ func handleReportAddressbookMultiget(w http.ResponseWriter, uri string, root *et
 
 		//fmt.Println(e.Tag)
 		name := e.Tag
-		switch (name) {
+		switch name {
 
-			case "getetag":
-				getETag = true
+		case "getetag":
+			getETag = true
 
-			case "address-data":
-				getAddressData = true
+		case "address-data":
+			getAddressData = true
 		}
 	}
 
@@ -218,7 +219,7 @@ func handleReportAddressbookMultiget(w http.ResponseWriter, uri string, root *et
 			continue
 		}
 
-		filename := arrPath[pathCount - 1]
+		filename := arrPath[pathCount-1]
 
 		arrFile := strings.Split(filename, ".")
 		if len(arrFile) < 2 {
@@ -246,9 +247,9 @@ func handleReportAddressbookMultiget(w http.ResponseWriter, uri string, root *et
 	handler.SendETreeDocument(w, http.StatusMultiStatus, dRet)
 }
 
-func handleReportVCardReply(ms *etree.Element, vcard *model.VCARD, uri string, getETag bool, getAddressData bool){
+func handleReportVCardReply(ms *etree.Element, vcard *model.VCARD, uri string, getETag bool, getAddressData bool) {
 
-	ps := handler.AddResponseToMultistat(ms, uri + vcard.Pkey + ".vcf")
+	ps := handler.AddResponseToMultistat(ms, uri+vcard.Pkey+".vcf")
 
 	if getETag {
 

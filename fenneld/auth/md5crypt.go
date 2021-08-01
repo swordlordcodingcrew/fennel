@@ -1,4 +1,5 @@
 package auth
+
 /*
 This file is developed under Apache 2.0 license, and can be used for open and proprietary projects.
 
@@ -15,8 +16,8 @@ See the License for the specific language governing permissions and limitations 
 */
 
 import (
-	"strings"
 	"crypto/md5"
+	"strings"
 )
 
 const itoa64 = "./0123456789ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz"
@@ -106,4 +107,3 @@ func MD5Crypt(password, salt, magic []byte) []byte {
 
 	return append(append(append(magic, salt...), '$'), result...)
 }
-

@@ -1,4 +1,5 @@
 package model
+
 /*-----------------------------------------------------------------------------
  **
  ** - Fennel -
@@ -35,23 +36,23 @@ import (
 )
 
 type CAL struct {
-	Pkey    string `gorm:"primary_key"`
-	Owner	string `sql:"NOT NULL"`
-	Timezone string `sql:"NOT NULL"`
-	Order	int `sql:"NOT NULL"`
-	FreeBusySet string `sql:"NOT NULL"`
-	SupportedCalComponent string `sql:"NOT NULL"`
-	Colour string `sql:"NOT NULL"`
-	Displayname string `sql:"NOT NULL"`
-	Synctoken	int `sql:"NOT NULL; DEFAULT:0"`
-	CrtDat	time.Time `sql:"DEFAULT:current_timestamp"`
-	UpdDat	time.Time `sql:"DEFAULT:current_timestamp"`
+	Pkey                  string    `gorm:"primary_key"`
+	Owner                 string    `sql:"NOT NULL"`
+	Timezone              string    `sql:"NOT NULL"`
+	Order                 int       `sql:"NOT NULL"`
+	FreeBusySet           string    `sql:"NOT NULL"`
+	SupportedCalComponent string    `sql:"NOT NULL"`
+	Colour                string    `sql:"NOT NULL"`
+	Displayname           string    `sql:"NOT NULL"`
+	Synctoken             int       `sql:"NOT NULL; DEFAULT:0"`
+	CrtDat                time.Time `sql:"DEFAULT:current_timestamp"`
+	UpdDat                time.Time `sql:"DEFAULT:current_timestamp"`
 }
 
 func (m *CAL) BeforeUpdate(scope *gorm.Scope) (err error) {
 
 	scope.SetColumn("UpdDat", time.Now())
-	return  nil
+	return nil
 }
 
 /*

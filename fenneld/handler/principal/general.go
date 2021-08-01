@@ -1,4 +1,5 @@
 package principal
+
 /*-----------------------------------------------------------------------------
  **
  ** - Fennel -
@@ -29,12 +30,12 @@ package principal
  **
 -----------------------------------------------------------------------------*/
 import (
-	"net/http"
 	"github.com/swordlordcodingcrew/fennel/fenneld/handler"
-	)
+	"net/http"
+)
 
 // TODO: handle as expected, this is a cheap workaround
-func Proppatch(w http.ResponseWriter, req *http.Request){
+func Proppatch(w http.ResponseWriter, req *http.Request) {
 
 	dRet, propstat := handler.GetMultistatusDoc(req.RequestURI)
 
@@ -53,7 +54,7 @@ func Proppatch(w http.ResponseWriter, req *http.Request){
 	handler.SendETreeDocument(w, http.StatusMultiStatus, dRet)
 }
 
-func Options(w http.ResponseWriter, req *http.Request){
+func Options(w http.ResponseWriter, req *http.Request) {
 
 	handler.RespondWithStandardOptions(w, http.StatusOK, "")
 }

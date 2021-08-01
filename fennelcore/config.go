@@ -1,4 +1,5 @@
 package fennelcore
+
 /*-----------------------------------------------------------------------------
  **
  ** - Fennel -
@@ -57,7 +58,7 @@ func InitConfig() {
 	// viper allows watching of config files for changes (and potential reloads)
 	viper.WatchConfig()
 	viper.OnConfigChange(func(e fsnotify.Event) {
-	//	fmt.Println("Config file changed:", e.Name)
+		//	fmt.Println("Config file changed:", e.Name)
 	})
 
 	// Find and read the config file
@@ -68,7 +69,7 @@ func InitConfig() {
 
 		if err := viper.ReadInConfig(); err != nil {
 			// we tried it once, crash now
-				log.Fatalf("Error reading config file, %s", err)
+			log.Fatalf("Error reading config file, %s", err)
 		}
 	}
 
@@ -104,7 +105,7 @@ func GetLogLevel() string {
 }
 
 //
-func WriteStandardConfig() (error) {
+func WriteStandardConfig() error {
 
 	err := ioutil.WriteFile("fennel.config.json", defaultConfig, 0700)
 
@@ -134,4 +135,3 @@ var defaultConfig = []byte(`
   }
 }
 `)
-

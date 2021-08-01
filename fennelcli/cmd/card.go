@@ -1,4 +1,5 @@
 package cmd
+
 /*-----------------------------------------------------------------------------
  **
  ** - Fennel -
@@ -30,40 +31,40 @@ package cmd
 -----------------------------------------------------------------------------*/
 
 import (
+	"fmt"
 	"github.com/spf13/cobra"
 	"github.com/swordlordcodingcrew/fennel/fennelcore/db/tablemodule"
-	"fmt"
 )
 
 // calCmd represents the domain command
 var cardCmd = &cobra.Command{
 	Use:   "card",
 	Short: "Add, change and manage address books.",
-	Long: `Add, change and manage address books. Requires a subcommand.`,
-	RunE: nil,
+	Long:  `Add, change and manage address books. Requires a subcommand.`,
+	RunE:  nil,
 }
 
 var cardListCmd = &cobra.Command{
 	Use:   "list",
 	Short: "List all address books.",
-	Long: `List all address books.`,
-	RunE: ListCal,
+	Long:  `List all address books.`,
+	RunE:  ListCal,
 }
 
 var cardAddCmd = &cobra.Command{
 	Use:   "add [username] [calendar]",
 	Short: "Add new  calendar for given user.",
-	Long: `Add new user to this instance of Wombag.`,
-	Args: cobra.ExactArgs(2),
-	RunE: AddCal,
+	Long:  `Add new user to this instance of Wombag.`,
+	Args:  cobra.ExactArgs(2),
+	RunE:  AddCal,
 }
 
 var cardDeleteCmd = &cobra.Command{
 	Use:   "delete [calendar]",
 	Short: "Deletes a calendar for given user.",
-	Long: `Deletes a calendar for given user.`,
-	Args: cobra.ExactArgs(1),
-	RunE: DeleteCal,
+	Long:  `Deletes a calendar for given user.`,
+	Args:  cobra.ExactArgs(1),
+	RunE:  DeleteCal,
 }
 
 func ListCard(cmd *cobra.Command, args []string) error {

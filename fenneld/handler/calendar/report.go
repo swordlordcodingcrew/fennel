@@ -1,4 +1,5 @@
 package calendar
+
 /*-----------------------------------------------------------------------------
  **
  ** - Fennel -
@@ -30,15 +31,15 @@ package calendar
 -----------------------------------------------------------------------------*/
 
 import (
-	"net/http"
-	"github.com/swordlordcodingcrew/fennel/fenneld/handler"
-		"github.com/gorilla/mux"
-	"github.com/swordlordcodingcrew/fennel/fennelcore/db/tablemodule"
-	"time"
-	"github.com/beevik/etree"
 	"fmt"
-	"strings"
+	"github.com/beevik/etree"
+	"github.com/gorilla/mux"
 	"github.com/swordlordcodingcrew/fennel/fennelcore/db/model"
+	"github.com/swordlordcodingcrew/fennel/fennelcore/db/tablemodule"
+	"github.com/swordlordcodingcrew/fennel/fenneld/handler"
+	"net/http"
+	"strings"
+	"time"
 )
 
 func Report(w http.ResponseWriter, req *http.Request) {
@@ -61,20 +62,20 @@ func Report(w http.ResponseWriter, req *http.Request) {
 
 	switch name {
 
-		case "sync-collection":
-			handleReportSyncCollection(w, req.RequestURI, root, sCalId)
+	case "sync-collection":
+		handleReportSyncCollection(w, req.RequestURI, root, sCalId)
 
-		case "calendar-multiget":
-			// TODO add handleReportCalendarMultiget
-			handleReportCalendarMultiget(w, req.RequestURI, root, sCalId);
+	case "calendar-multiget":
+		// TODO add handleReportCalendarMultiget
+		handleReportCalendarMultiget(w, req.RequestURI, root, sCalId)
 
-		case "calendar-query":
-			handleReportCalendarQuery(w, req.RequestURI, root, sCalId)
+	case "calendar-query":
+		handleReportCalendarQuery(w, req.RequestURI, root, sCalId)
 
-		default:
-			if name != "text" {
-				fmt.Println("CAL-Report: not handled: " + name)
-			}
+	default:
+		if name != "text" {
+			fmt.Println("CAL-Report: not handled: " + name)
+		}
 	}
 }
 
@@ -150,15 +151,15 @@ func handleReportCalendarQuery(w http.ResponseWriter, uri string, nodeQuery *etr
 	handler.SendETreeDocument(w, http.StatusMultiStatus, dRet)
 }
 
-func appendIcsAsResponseToMultistat(ms *etree.Element, ics *model.ICS, props []*etree.Element, uri string, supportedCalComponent string){
+func appendIcsAsResponseToMultistat(ms *etree.Element, ics *model.ICS, props []*etree.Element, uri string, supportedCalComponent string) {
 
-	propstat := handler.AddResponseToMultistat(ms, uri + ics.Pkey + ".ics")
+	propstat := handler.AddResponseToMultistat(ms, uri+ics.Pkey+".ics")
 
 	// values to return from: /B:calendar-query/A:prop
 	for _, prop := range props {
 
 		propName := prop.Tag
-		switch(propName) {
+		switch propName {
 
 		// TODO missing:
 		// <C:created-by xmlns:C="http://calendarserver.org/ns/"/>
@@ -225,23 +226,23 @@ func handleReportSyncCollection(w http.ResponseWriter, uri string, nodeSyncColle
 
 			//fmt.Println(e.Tag)
 			name := el.Tag
-			switch(name) {
+			switch name {
 
-				case "sync-token":
-					// TODO
+			case "sync-token":
+				// TODO
 
-				case "sync-level":
-					// TODO
+			case "sync-level":
+				// TODO
 
-				case "prop":
-					//response += handleReportCalendarProp(comm, child, cal, ics);
-					// TODO
-					fmt.Println("found: " + ics.Content)
+			case "prop":
+				//response += handleReportCalendarProp(comm, child, cal, ics);
+				// TODO
+				fmt.Println("found: " + ics.Content)
 
-				default:
-					if name != "text" {
-						fmt.Println("CAL-RSC: not handled: " + name)
-					}
+			default:
+				if name != "text" {
+					fmt.Println("CAL-RSC: not handled: " + name)
+				}
 			}
 		}
 	}
@@ -255,7 +256,6 @@ func handleReportSyncCollection(w http.ResponseWriter, uri string, nodeSyncColle
 
 	handler.SendETreeDocument(w, http.StatusMultiStatus, dRet)
 }
-
 
 /*
 function handleReportCalendarProp(comm, node, cal, ics)
@@ -301,7 +301,6 @@ function handleReportCalendarProp(comm, node, cal, ics)
 
     return response;
 }*/
-
 
 func handleReportCalendarMultiget(w http.ResponseWriter, uri string, mg *etree.Element, sCalId string) {
 
@@ -351,7 +350,7 @@ func parseHrefToIcsId(href string) string {
 		return ""
 	}
 
-	filename := arrPath[pathCount - 1]
+	filename := arrPath[pathCount-1]
 
 	arrFile := strings.Split(filename, ".")
 	if len(arrFile) < 2 {

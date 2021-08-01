@@ -1,4 +1,5 @@
 package handler
+
 /*-----------------------------------------------------------------------------
  **
  ** - Fennel -
@@ -30,12 +31,11 @@ package handler
 -----------------------------------------------------------------------------*/
 
 import (
-	"net/http"
 	"github.com/gorilla/mux"
+	"net/http"
 )
 
-
-func OnWellKnown(w http.ResponseWriter, req *http.Request){
+func OnWellKnown(w http.ResponseWriter, req *http.Request) {
 
 	vars := mux.Vars(req)
 	sParam := vars["param"]
@@ -45,16 +45,16 @@ func OnWellKnown(w http.ResponseWriter, req *http.Request){
 	// Never seen most of these, though
 	switch sParam {
 
-		case "caldav":
-			RespondWithRedirect(w, req, "/cal/")
-		case "carddav":
-			RespondWithRedirect(w, req, "/card/")
-		default:
-			RespondWithRedirect(w, req, "/p/")
+	case "caldav":
+		RespondWithRedirect(w, req, "/cal/")
+	case "carddav":
+		RespondWithRedirect(w, req, "/card/")
+	default:
+		RespondWithRedirect(w, req, "/p/")
 	}
 }
 
-func OnWellKnownNoParam(w http.ResponseWriter, req *http.Request){
+func OnWellKnownNoParam(w http.ResponseWriter, req *http.Request) {
 
 	RespondWithRedirect(w, req, "/p/")
 }

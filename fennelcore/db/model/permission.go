@@ -1,4 +1,5 @@
 package model
+
 /*-----------------------------------------------------------------------------
  **
  ** - Fennel -
@@ -35,18 +36,18 @@ import (
 )
 
 type Permission struct {
-	Pkey    	string `gorm:"primary_key"`
-	GroupId		string `sql:"NOT NULL"`
-	Description	string
-	Permission 	string
-	CrtDat		time.Time `sql:"DEFAULT:current_timestamp"`
-	UpdDat		time.Time `sql:"DEFAULT:current_timestamp"`
+	Pkey        string `gorm:"primary_key"`
+	GroupId     string `sql:"NOT NULL"`
+	Description string
+	Permission  string
+	CrtDat      time.Time `sql:"DEFAULT:current_timestamp"`
+	UpdDat      time.Time `sql:"DEFAULT:current_timestamp"`
 }
 
 func (m *Permission) BeforeUpdate(scope *gorm.Scope) (err error) {
 
 	scope.SetColumn("UpdDat", time.Now())
-	return  nil
+	return nil
 }
 
 /*

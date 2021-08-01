@@ -1,4 +1,5 @@
 package addressbook
+
 /*-----------------------------------------------------------------------------
  **
  ** - Fennel -
@@ -30,27 +31,27 @@ package addressbook
 -----------------------------------------------------------------------------*/
 
 import (
-	"net/http"
-	"github.com/swordlordcodingcrew/fennel/fenneld/handler"
-	"github.com/gorilla/mux"
-	"io/ioutil"
-	"github.com/swordlordcodingcrew/fennel/fennelcore/db/tablemodule"
 	"fmt"
+	"github.com/gorilla/mux"
+	"github.com/swordlordcodingcrew/fennel/fennelcore/db/tablemodule"
+	"github.com/swordlordcodingcrew/fennel/fenneld/handler"
+	"io/ioutil"
 	"log"
+	"net/http"
 	"strings"
 )
 
-func Proppatch(w http.ResponseWriter, req *http.Request){
+func Proppatch(w http.ResponseWriter, req *http.Request) {
 
 	handler.RespondWithMessage(w, http.StatusOK, "Not implemented yet")
 }
 
-func Options(w http.ResponseWriter, req *http.Request){
+func Options(w http.ResponseWriter, req *http.Request) {
 
 	handler.RespondWithStandardOptions(w, http.StatusOK, "")
 }
 
-func Put(w http.ResponseWriter, req *http.Request){
+func Put(w http.ResponseWriter, req *http.Request) {
 
 	vars := mux.Vars(req)
 	sAB := vars["addressbook"]
@@ -76,10 +77,10 @@ func Put(w http.ResponseWriter, req *http.Request){
 		return
 	}
 
-	handler.RespondWithMessage(w, http.StatusCreated, "VCARD added: " + vcard.Pkey)
+	handler.RespondWithMessage(w, http.StatusCreated, "VCARD added: "+vcard.Pkey)
 }
 
-func Get(w http.ResponseWriter, req *http.Request){
+func Get(w http.ResponseWriter, req *http.Request) {
 
 	vars := mux.Vars(req)
 	sCard := vars["card"]
@@ -97,7 +98,7 @@ func Get(w http.ResponseWriter, req *http.Request){
 	handler.RespondWithVCARD(w, http.StatusOK, vcard.Content)
 }
 
-func Delete(w http.ResponseWriter, req *http.Request){
+func Delete(w http.ResponseWriter, req *http.Request) {
 
 	vars := mux.Vars(req)
 	sCard := vars["card"]
@@ -115,7 +116,7 @@ func Delete(w http.ResponseWriter, req *http.Request){
 	handler.RespondWithMessage(w, http.StatusOK, "Deleted")
 }
 
-func Move(w http.ResponseWriter, req *http.Request){
+func Move(w http.ResponseWriter, req *http.Request) {
 
 	handler.RespondWithMessage(w, http.StatusOK, "Not implemented yet")
 }

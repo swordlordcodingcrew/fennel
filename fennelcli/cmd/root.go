@@ -1,4 +1,5 @@
 package cmd
+
 /*-----------------------------------------------------------------------------
  **
  ** - Fennel -
@@ -55,5 +56,3 @@ func init() {
 	// when this action is called directly.
 	// RootCmd.Flags().BoolP("toggle", "t", false, "Help message for toggle")
 }
-
-

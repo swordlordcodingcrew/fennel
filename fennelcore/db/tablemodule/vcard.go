@@ -1,4 +1,5 @@
 package tablemodule
+
 /*-----------------------------------------------------------------------------
  **
  ** - Fennel -
@@ -30,9 +31,9 @@ package tablemodule
 -----------------------------------------------------------------------------*/
 import (
 	"fmt"
-	"log"
 	fcdb "github.com/swordlordcodingcrew/fennel/fennelcore"
 	"github.com/swordlordcodingcrew/fennel/fennelcore/db/model"
+	"log"
 )
 
 func ListVCardsPerAddressbook(addressbook string) {
@@ -97,7 +98,7 @@ func GetVCard(vcardId string) (model.VCARD, error) {
 	return vcard, nil
 }
 
-func FindVcardsByAddressbook(addressbookID string) (error, []*model.VCARD)  {
+func FindVcardsByAddressbook(addressbookID string) (error, []*model.VCARD) {
 
 	var vcard model.VCARD
 
@@ -136,7 +137,6 @@ func FindVCardsFromAddressbook(adbID string, vcardIDs []string) (error, []*model
 
 	return nil, rows
 }
-
 
 func DeleteVCard(vcardId string) error {
 

@@ -1,4 +1,5 @@
 package handler
+
 /*-----------------------------------------------------------------------------
  **
  ** - Fennel -
@@ -32,7 +33,7 @@ import (
 	"github.com/beevik/etree"
 )
 
-func AddURLElement(node *etree.Element, url string){
+func AddURLElement(node *etree.Element, url string) {
 
 	//<d:href>/p/</d:href>
 	cup := node.CreateElement("href")

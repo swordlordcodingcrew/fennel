@@ -1,4 +1,5 @@
 package tablemodule
+
 /*-----------------------------------------------------------------------------
  **
  ** - Fennel -
@@ -30,9 +31,9 @@ package tablemodule
 -----------------------------------------------------------------------------*/
 import (
 	"fmt"
-	"log"
 	fcdb "github.com/swordlordcodingcrew/fennel/fennelcore"
 	"github.com/swordlordcodingcrew/fennel/fennelcore/db/model"
+	"log"
 )
 
 func ListAddressbook() {
@@ -59,7 +60,7 @@ func AddAddressbook(name string, password string, user string) (model.ADB, error
 
 	_, err := hashPassword(password)
 	if err != nil {
-		log.Printf("Error with hashing password %q: %s\n", password, err )
+		log.Printf("Error with hashing password %q: %s\n", password, err)
 		return model.ADB{}, err
 	}
 
@@ -146,7 +147,7 @@ func UpdateAddressbook(name string, password string) error {
 
 	pwd, err := hashPassword(password)
 	if err != nil {
-		log.Printf("Error with hashing password %q: %s\n", password, err )
+		log.Printf("Error with hashing password %q: %s\n", password, err)
 		return err
 	}
 

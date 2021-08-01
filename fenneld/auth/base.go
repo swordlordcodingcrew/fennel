@@ -1,14 +1,14 @@
 package auth
 
 import (
+	"context"
+	"encoding/base64"
+	"github.com/pkg/errors"
+	"github.com/swordlordcodingcrew/fennel/fennelcore"
+	"github.com/swordlordcodingcrew/fennel/fenneld/handler"
 	"github.com/urfave/negroni"
 	"net/http"
 	"strings"
-	"encoding/base64"
-				"github.com/pkg/errors"
-	"github.com/swordlordcodingcrew/fennel/fenneld/handler"
-	"github.com/swordlordcodingcrew/fennel/fennelcore"
-	"context"
 )
 
 /*-----------------------------------------------------------------------------
@@ -90,15 +90,15 @@ func ValidateUser(uid string, pwd string) (error, string) {
 
 	switch authModule {
 
-		case "htpasswd":
-			return ValidateUserHTPasswd(uid, pwd)
-		case "ldap":
-		case "db":
-			return ValidateDB(uid, pwd)
-		case "courier":
-			return ValidateCourier(uid, pwd)
-		default:
-			return errors.New("Authentication Module unknown, can't authenticate"), ""
+	case "htpasswd":
+		return ValidateUserHTPasswd(uid, pwd)
+	case "ldap":
+	case "db":
+		return ValidateDB(uid, pwd)
+	case "courier":
+		return ValidateCourier(uid, pwd)
+	default:
+		return errors.New("Authentication Module unknown, can't authenticate"), ""
 	}
 
 	return errors.New("Authentication Module unknown, can't authenticate"), ""

@@ -1,4 +1,5 @@
 package auth
+
 /*-----------------------------------------------------------------------------
  **
  ** - Fennel -
@@ -30,19 +31,19 @@ package auth
 -----------------------------------------------------------------------------*/
 
 import (
-	"os"
-	"encoding/csv"
-	"github.com/swordlordcodingcrew/fennel/fennelcore"
-	"strings"
+	"bytes"
 	"crypto/sha1"
 	"crypto/subtle"
 	"encoding/base64"
-	"bytes"
+	"encoding/csv"
 	"errors"
+	"github.com/swordlordcodingcrew/fennel/fennelcore"
+	"os"
+	"strings"
 )
 
 type usermap struct {
-	Users map[string]string // The map of htpasswd User key value pairs
+	Users         map[string]string // The map of htpasswd User key value pairs
 	IsInitialised bool
 }
 
@@ -69,7 +70,7 @@ func LoadHTPasswd(fromFile string) error {
 
 	// Create a straps object
 	um = usermap{
-		Users: make(map[string]string),
+		Users:         make(map[string]string),
 		IsInitialised: false,
 	}
 
@@ -83,7 +84,6 @@ func LoadHTPasswd(fromFile string) error {
 
 	return nil
 }
-
 
 func ValidateUserHTPasswd(uid string, pwd string) (error, string) {
 
@@ -107,7 +107,7 @@ func ValidateUserHTPasswd(uid string, pwd string) (error, string) {
 		if subtle.ConstantTimeCompare([]byte(pwdHash)[5:], []byte(base64.StdEncoding.EncodeToString(d.Sum(nil)))) != 1 {
 			return errors.New("Password not correct"), ""
 		}
-	} else if strings.HasPrefix(pwdHash, "$apr1$"){
+	} else if strings.HasPrefix(pwdHash, "$apr1$") {
 
 		err := compareMD5HashAndPassword([]byte(pwdHash), []byte(pwd))
 		if err != nil {
@@ -116,7 +116,6 @@ func ValidateUserHTPasswd(uid string, pwd string) (error, string) {
 			return nil, ""
 		}
 	} else {
-
 
 	}
 

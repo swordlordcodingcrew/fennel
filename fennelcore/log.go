@@ -1,4 +1,5 @@
 package fennelcore
+
 /*-----------------------------------------------------------------------------
  **
  ** - Fennel -
@@ -114,7 +115,6 @@ func LogErrorFmt(err string, a ...interface{}) {
 
 	log.Errorf(err, a...)
 }
-
 
 func LogFatal(msg string, fields log.Fields) {
 

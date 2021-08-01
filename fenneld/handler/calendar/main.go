@@ -1,4 +1,5 @@
 package calendar
+
 /*-----------------------------------------------------------------------------
  **
  ** - Fennel -
@@ -30,42 +31,42 @@ package calendar
 -----------------------------------------------------------------------------*/
 
 import (
-	"net/http"
-	"github.com/swordlordcodingcrew/fennel/fenneld/handler"
 	"encoding/xml"
+	"fmt"
 	"github.com/gorilla/mux"
 	"github.com/swordlordcodingcrew/fennel/fennelcore/db/tablemodule"
-			"fmt"
-		"io/ioutil"
+	"github.com/swordlordcodingcrew/fennel/fenneld/handler"
+	"io/ioutil"
 	"log"
+	"net/http"
 )
 
 type Xmlmakecalendar struct {
 	XMLName xml.Name
-	Set       Xmlset   `xml:"set"`
+	Set     Xmlset `xml:"set"`
 }
 
 type Xmlset struct {
 	XMLName xml.Name
-	Prop	Xmlprop   `xml:"prop"`
+	Prop    Xmlprop `xml:"prop"`
 }
 
 type Xmlprop struct {
-	XMLName 				xml.Name
-	Displayname				string 	`xml:"displayname"`
-	CalendarOrder			int	`xml:"calendar-order"`
-	CalendarTimezone		string	`xml:"calendar-timezone"`
-	CalendarColour			string	`xml:"calendar-color"`
-	FreeBusySet				string	`xml:"calendar-free-busy-set"`
+	XMLName          xml.Name
+	Displayname      string `xml:"displayname"`
+	CalendarOrder    int    `xml:"calendar-order"`
+	CalendarTimezone string `xml:"calendar-timezone"`
+	CalendarColour   string `xml:"calendar-color"`
+	FreeBusySet      string `xml:"calendar-free-busy-set"`
 }
 
-func Proppatch(w http.ResponseWriter, req *http.Request){
+func Proppatch(w http.ResponseWriter, req *http.Request) {
 
 	handler.RespondWithMessage(w, http.StatusOK, "Not implemented yet")
 
 }
 
-func Options(w http.ResponseWriter, req *http.Request){
+func Options(w http.ResponseWriter, req *http.Request) {
 
 	handler.RespondWithStandardOptions(w, http.StatusOK, "")
 }
@@ -113,8 +114,7 @@ payload += "</A:set>\n\r";
 payload += "</B:mkcalendar>\n\r";
 */
 
-
-func MakeCalendar(w http.ResponseWriter, req *http.Request){
+func MakeCalendar(w http.ResponseWriter, req *http.Request) {
 
 	vars := mux.Vars(req)
 	sCal := vars["calendar"]
@@ -154,10 +154,10 @@ func MakeCalendar(w http.ResponseWriter, req *http.Request){
 		return
 	}
 
-	handler.RespondWithMessage(w, http.StatusCreated, "Make calendar: " + cal.Pkey + " for user: " + sUser)
+	handler.RespondWithMessage(w, http.StatusCreated, "Make calendar: "+cal.Pkey+" for user: "+sUser)
 }
 
-func Put(w http.ResponseWriter, req *http.Request){
+func Put(w http.ResponseWriter, req *http.Request) {
 
 	vars := mux.Vars(req)
 	sCal := vars["calendar"]
@@ -182,7 +182,7 @@ func Put(w http.ResponseWriter, req *http.Request){
 			handler.RespondWithMessage(w, http.StatusPreconditionFailed, err.Error())
 			return
 		}
-		handler.RespondWithMessage(w, http.StatusCreated, "ICS added: " + ics.Pkey)
+		handler.RespondWithMessage(w, http.StatusCreated, "ICS added: "+ics.Pkey)
 	} else {
 
 		ics, err := tablemodule.UpdateIcs(sEvent, string(bodyBuffer))
@@ -213,7 +213,7 @@ func Get(w http.ResponseWriter, req *http.Request) {
 	handler.RespondWithICS(w, http.StatusOK, ics.Content)
 }
 
-func Delete(w http.ResponseWriter, req *http.Request){
+func Delete(w http.ResponseWriter, req *http.Request) {
 
 	vars := mux.Vars(req)
 	sEvent := vars["event"]
@@ -231,7 +231,7 @@ func Delete(w http.ResponseWriter, req *http.Request){
 	handler.RespondWithMessage(w, http.StatusOK, "Deleted")
 }
 
-func Move(w http.ResponseWriter, req *http.Request){
+func Move(w http.ResponseWriter, req *http.Request) {
 
 	handler.RespondWithMessage(w, http.StatusOK, "Not implemented yet")
 

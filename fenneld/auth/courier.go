@@ -1,4 +1,5 @@
 package auth
+
 /*-----------------------------------------------------------------------------
  **
  ** - Fennel -
@@ -30,9 +31,8 @@ package auth
 -----------------------------------------------------------------------------*/
 
 import (
-									"errors"
+	"errors"
 )
-
 
 func ValidateCourier(uid string, pwd string) (error, string) {
 

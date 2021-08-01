@@ -1,4 +1,5 @@
 package model
+
 /*-----------------------------------------------------------------------------
  **
  ** - Fennel -
@@ -35,19 +36,19 @@ import (
 )
 
 type ICS struct {
-	Pkey    	string `gorm:"primary_key"`
-	CalendarId  string `sql:"NOT NULL"`
-	StartDate	time.Time `sql:"NOT NULL; DEFAULT:current_timestamp"`
-	EndDate		time.Time `sql:"NOT NULL; DEFAULT:current_timestamp"`
-	Content		string `sql:"type:blob"`
-	CrtDat		time.Time `sql:"DEFAULT:current_timestamp"`
-	UpdDat		time.Time `sql:"DEFAULT:current_timestamp"`
+	Pkey       string    `gorm:"primary_key"`
+	CalendarId string    `sql:"NOT NULL"`
+	StartDate  time.Time `sql:"NOT NULL; DEFAULT:current_timestamp"`
+	EndDate    time.Time `sql:"NOT NULL; DEFAULT:current_timestamp"`
+	Content    string    `sql:"type:blob"`
+	CrtDat     time.Time `sql:"DEFAULT:current_timestamp"`
+	UpdDat     time.Time `sql:"DEFAULT:current_timestamp"`
 }
 
 func (m *ICS) BeforeUpdate(scope *gorm.Scope) (err error) {
 
 	scope.SetColumn("UpdDat", time.Now())
-	return  nil
+	return nil
 }
 
 /*

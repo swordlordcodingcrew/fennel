@@ -1,4 +1,5 @@
 package model
+
 /*-----------------------------------------------------------------------------
  **
  ** - Fennel -
@@ -35,19 +36,19 @@ import (
 )
 
 type VCARD struct {
-	Pkey    		string `gorm:"primary_key"`
-	Owner			string	`sql:"NOT NULL"`
-	AddressbookId	string `sql:"NOT NULL"`
-	Content			string	`sql:"NOT NULL"`
-	IsGroup		bool `sql:"NOT NULL;DEFAULT:false"`
-	CrtDat	time.Time `sql:"DEFAULT:current_timestamp"`
-	UpdDat	time.Time `sql:"DEFAULT:current_timestamp"`
+	Pkey          string    `gorm:"primary_key"`
+	Owner         string    `sql:"NOT NULL"`
+	AddressbookId string    `sql:"NOT NULL"`
+	Content       string    `sql:"NOT NULL"`
+	IsGroup       bool      `sql:"NOT NULL;DEFAULT:false"`
+	CrtDat        time.Time `sql:"DEFAULT:current_timestamp"`
+	UpdDat        time.Time `sql:"DEFAULT:current_timestamp"`
 }
 
 func (m *VCARD) BeforeUpdate(scope *gorm.Scope) (err error) {
 
 	scope.SetColumn("UpdDat", time.Now())
-	return  nil
+	return nil
 }
 
 /*
