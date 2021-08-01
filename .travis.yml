@@ -2,3 +2,14 @@ language: go
 
 go:
   - "1.16"
+
+deploy:
+  provider: releases
+  file:
+    - bin/fenneld-v$VERSION
+    - bin/fennelcli-v$VERSION
+  api_key:
+    secure: NS2Fw2BHbNyWcFxc+tNcMMeNj1BBHYCp5iyx45biOWSepWNl3ZJkJGoGtpRUXNIjkNjjb2fRkz6yCmXdsHXEWMNZu4CpbXR1DZXswXUjtemk0DgzyHMaPWZsIV5eMfcEfzkhLqTbQsYVXeYjo9J1N65CXtHbB0GbTcDm0iMo+5EGXiRT150x4q8Mj4HywShW0arRntH+TdJidKmLpqig/sgp+4tH0rf9ld5XPatwPtDdLlNGYCuii3tiogN+hcd99JYLt10wHi10BXV4i/QRwnCQ/Qw0xctXv+JwCaqrq4NAVXQ+p+n0QTBUTLIsddN8GXT1igMjglNtHQvuiQGnJJga2hBxSQoYfLfw5EHquiKCvS/7IGKaTNODqMHNJxihOYjKgyVjXL7xOi+x3+9enPOWnRargNbztD7XWe+kZjOW9Ab8ea9O31PKWVhPwszwSbDxXxX+o/Cvy5Hs42dIaCykRDUwSCiqphJtHhyxOWOVRW54E3ekvgwRfpXXDJF1H0/SdZr3InUFkLpa/gnv1UC2E+e3yeUa3QKyoYJzb5YdWBlYYmu/YYN5LJXjUmTGwIJQULbZHeTlFigskI1kEmupYpqFnrxY1NBov4rAyS/Vt5wcGTEnPqMf/fgjLCbigCROxuxiFtsplF1K/1TdkXlqgev/9Wzm9zx1ucz3pPA=
+  skip_cleanup: true
+  on:
+    tags: true
