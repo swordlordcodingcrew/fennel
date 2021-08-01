@@ -5,7 +5,7 @@ package handler
  **
  ** your lightweight CalDAV and CardDAV server
  **
- ** Copyright 2018 by SwordLord - the coding crew - http://www.github.com/swordlordcodingcrew/fennel
+ ** Copyright 2018 by SwordLord - the coding crew - http://www.swordlord.com
  ** and contributing authors
  **
  ** This program is free software; you can redistribute it and/or modify it
@@ -24,8 +24,8 @@ package handler
  **-----------------------------------------------------------------------------
  **
  ** Original Authors:
- ** LordEidi@github.com/swordlordcodingcrew/fennel
- ** LordCelery@github.com/swordlordcodingcrew/fennel
+ ** LordEidi@swordlord.com
+ ** LordCelery@swordlord.com
  **
 -----------------------------------------------------------------------------*/
 

@@ -1,11 +1,12 @@
 package principal
+
 /*-----------------------------------------------------------------------------
  **
  ** - Fennel -
  **
  ** your lightweight CalDAV and CardDAV server
  **
- ** Copyright 2018 by SwordLord - the coding crew - http://www.github.com/swordlordcodingcrew/fennel
+ ** Copyright 2018 by SwordLord - the coding crew - http://www.swordlord.com
  ** and contributing authors
  **
  ** This program is free software; you can redistribute it and/or modify it
@@ -24,18 +25,19 @@ package principal
  **-----------------------------------------------------------------------------
  **
  ** Original Authors:
- ** LordEidi@github.com/swordlordcodingcrew/fennel
- ** LordCelery@github.com/swordlordcodingcrew/fennel
+ ** LordEidi@swordlord.com
+ ** LordCelery@swordlord.com
  **
 -----------------------------------------------------------------------------*/
 import (
-	"net/http"
-	"github.com/swordlordcodingcrew/fennel/fenneld/handler"
 	"fmt"
-	"github.com/beevik/etree"
-	)
+	"net/http"
 
-func Propfind(w http.ResponseWriter, req *http.Request){
+	"github.com/beevik/etree"
+	"github.com/swordlordcodingcrew/fennel/fenneld/handler"
+)
+
+func Propfind(w http.ResponseWriter, req *http.Request) {
 
 	sUser, ok := req.Context().Value("auth_user").(string)
 	if !ok {
@@ -93,7 +95,7 @@ func fillPropfindResponse(node *etree.Element, props []*etree.Element, sUser str
 
 		//fmt.Println(e.Tag)
 		name := e.Tag
-		switch(name) {
+		switch name {
 
 		case "checksum-versions":
 			//";
@@ -101,7 +103,7 @@ func fillPropfindResponse(node *etree.Element, props []*etree.Element, sUser str
 		case "sync-token":
 			prop := node.CreateElement("sync-token")
 			prop.Space = "d"
-			prop.SetText("https://github.com/swordlordcodingcrew/fennel/ns/sync/" + token)
+			prop.SetText("https://swordlord.com/ns/sync/" + token)
 
 		case "supported-report-set":
 			fillSupportedReportSet(node)
@@ -167,7 +169,7 @@ func fillPropfindResponse(node *etree.Element, props []*etree.Element, sUser str
 
 			href := prop.CreateElement("href")
 			href.Space = "d"
-			href.SetText("mailto:lord test at github.com/swordlordcodingcrew/fennel")
+			href.SetText("mailto:lord test at swordlord.com")
 
 			href2 := prop.CreateElement("href")
 			href2.Space = "d"
@@ -200,7 +202,7 @@ func fillPropfindResponse(node *etree.Element, props []*etree.Element, sUser str
 			//";
 
 		case "email-address-set":
-			//<cs:email-address-set><cs:email-address>lord test at github.com/swordlordcodingcrew/fennel</cs:email-address></cs:email-address-set>";
+			//<cs:email-address-set><cs:email-address>lord test at swordlord.com</cs:email-address></cs:email-address-set>";
 			prop := node.CreateElement("email-address-set")
 			prop.Space = "cs"
 
@@ -208,7 +210,7 @@ func fillPropfindResponse(node *etree.Element, props []*etree.Element, sUser str
 			ea.Space = "cs"
 
 			// todo load user email from db
-			ea.SetText("lord test at github.com/swordlordcodingcrew/fennel")
+			ea.SetText("lord test at swordlord.com")
 
 		case "resource-id":
 
@@ -220,28 +222,27 @@ func fillPropfindResponse(node *etree.Element, props []*etree.Element, sUser str
 	}
 }
 
-
 func fillSupportedReportSet(node *etree.Element) {
 
 	/*
-        <d:supported-report-set>\r\n";
-        	<d:supported-report>\r\n";
-        		<d:report>\r\n";
-        			<d:expand-property/>\r\n";
-        		</d:report>\r\n";
-        	</d:supported-report>\r\n";
-        	<d:supported-report>\r\n";
-        		<d:report>\r\n";
-        			<d:principal-property-search/>\r\n";
-        		</d:report>\r\n";
-        	</d:supported-report>\r\n";
-        	<d:supported-report>\r\n";
-        		<d:report>\r\n";
-        			<d:principal-search-property-set/>\r\n";
-        		</d:report>\r\n";
-        	</d:supported-report>\r\n";
-        </d:supported-report-set>\r\n";
-*/
+	   <d:supported-report-set>\r\n";
+	   	<d:supported-report>\r\n";
+	   		<d:report>\r\n";
+	   			<d:expand-property/>\r\n";
+	   		</d:report>\r\n";
+	   	</d:supported-report>\r\n";
+	   	<d:supported-report>\r\n";
+	   		<d:report>\r\n";
+	   			<d:principal-property-search/>\r\n";
+	   		</d:report>\r\n";
+	   	</d:supported-report>\r\n";
+	   	<d:supported-report>\r\n";
+	   		<d:report>\r\n";
+	   			<d:principal-search-property-set/>\r\n";
+	   		</d:report>\r\n";
+	   	</d:supported-report>\r\n";
+	   </d:supported-report-set>\r\n";
+	*/
 	srs := node.CreateElement("supported-report-set")
 	srs.Space = "d"
 
@@ -274,5 +275,5 @@ func fillSupportedReportSet(node *etree.Element) {
 
 	psps := r3.CreateElement("principal-search-property-set")
 	psps.Space = "d"
-	
+
 }

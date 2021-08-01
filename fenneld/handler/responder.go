@@ -5,7 +5,7 @@ package handler
  **
  ** the alternative, native backend for your Wallabag apps
  **
- ** Copyright 2017-18 by SwordLord - the coding crew - http://www.github.com/swordlordcodingcrew/fennel
+ ** Copyright 2017-18 by SwordLord - the coding crew - http://www.swordlord.com
  ** and contributing authors
  **
  ** This program is free software; you can redistribute it and/or modify it
@@ -24,8 +24,8 @@ package handler
  **-----------------------------------------------------------------------------
  **
  ** Original Authors:
- ** LordEidi@github.com/swordlordcodingcrew/fennel
- ** LordLightningBolt@github.com/swordlordcodingcrew/fennel
+ ** LordEidi@swordlord.com
+ ** LordLightningBolt@swordlord.com
  **
 -----------------------------------------------------------------------------*/
 import (

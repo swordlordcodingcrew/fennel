@@ -1,11 +1,12 @@
 package addressbook
+
 /*-----------------------------------------------------------------------------
  **
  ** - Fennel -
  **
  ** your lightweight CalDAV and CardDAV server
  **
- ** Copyright 2018 by SwordLord - the coding crew - http://www.github.com/swordlordcodingcrew/fennel
+ ** Copyright 2018 by SwordLord - the coding crew - http://www.swordlord.com
  ** and contributing authors
  **
  ** This program is free software; you can redistribute it and/or modify it
@@ -24,20 +25,21 @@ package addressbook
  **-----------------------------------------------------------------------------
  **
  ** Original Authors:
- ** LordEidi@github.com/swordlordcodingcrew/fennel
- ** LordCelery@github.com/swordlordcodingcrew/fennel
+ ** LordEidi@swordlord.com
+ ** LordCelery@swordlord.com
  **
 -----------------------------------------------------------------------------*/
 
 import (
-	"net/http"
-	"github.com/swordlordcodingcrew/fennel/fenneld/handler"
-	"github.com/swordlordcodingcrew/fennel/fennelcore/db/tablemodule"
 	"fmt"
-	"github.com/beevik/etree"
-	"github.com/swordlordcodingcrew/fennel/fennelcore/db/model"
+	"net/http"
 	"strconv"
+
+	"github.com/beevik/etree"
 	"github.com/gorilla/mux"
+	"github.com/swordlordcodingcrew/fennel/fennelcore/db/model"
+	"github.com/swordlordcodingcrew/fennel/fennelcore/db/tablemodule"
+	"github.com/swordlordcodingcrew/fennel/fenneld/handler"
 )
 
 // TODO check if on root, if yes, answer differently
@@ -46,18 +48,18 @@ func PropfindRoot(w http.ResponseWriter, req *http.Request) {
 	handler.RespondWithMessage(w, http.StatusNotImplemented, "Propfind on Root not implemented yet")
 }
 
-func PropfindUser(w http.ResponseWriter, req *http.Request){
+func PropfindUser(w http.ResponseWriter, req *http.Request) {
 
 	vars := mux.Vars(req)
 	sUser := vars["user"]
 
 	// todo do we need the logged in user?
 	/*
-	sUser, ok := req.Context().Value("auth_user").(string)
-	if !ok {
-		// TODO fail when there is no user, since this can't really happen!
-		sUser = ""
-	}
+		sUser, ok := req.Context().Value("auth_user").(string)
+		if !ok {
+			// TODO fail when there is no user, since this can't really happen!
+			sUser = ""
+		}
 	*/
 
 	dRet, ms := handler.GetMultistatusDocWOResponseTag()
@@ -80,7 +82,7 @@ func PropfindUser(w http.ResponseWriter, req *http.Request){
 	propsQuery := doc.FindElements("/propfind/prop/*")
 
 	// get the propstat for the root response
-	psRoot := handler.AddResponseWStatusToMultistat(ms, "/cal/" + sUser + "/", http.StatusOK)
+	psRoot := handler.AddResponseWStatusToMultistat(ms, "/cal/"+sUser+"/", http.StatusOK)
 
 	// let helper function fill prop element with requested props from the root
 	fillPropfindResponseOnAddressbookRoot(psRoot, sUser, propsQuery)
@@ -193,7 +195,7 @@ func PropfindAddressbook(w http.ResponseWriter, req *http.Request) {
 }
 */
 
-func fillPropfindResponseOnAddressbookRoot(psRoot *etree.Element, sUser string, propsQuery []*etree.Element){
+func fillPropfindResponseOnAddressbookRoot(psRoot *etree.Element, sUser string, propsQuery []*etree.Element) {
 
 	token := ""
 
@@ -201,10 +203,77 @@ func fillPropfindResponseOnAddressbookRoot(psRoot *etree.Element, sUser string, 
 
 		//fmt.Println(e.Tag)
 		name := e.Tag
-		switch(name) {
+		switch name {
+
+		case "current-user-privilege-set":
+			fillCurrentUserPrivilegeSetRoot(psRoot, sUser)
+
+		case "owner":
+			// 		<d:owner>
+			//          <d:href>/p/a3298271331/</d:href>
+			//        </d:owner>
+			prop := psRoot.CreateElement("owner")
+			prop.Space = "d"
+
+			href := prop.CreateElement("href")
+			href.Space = "d"
+
+			href.SetText("/p/" + sUser + "/")
+
+		case "resourcetype":
+			//         <d:resourcetype>
+			//          <d:collection/>
+			//        </d:resourcetype>
+			prop := psRoot.CreateElement("resourcetype")
+			prop.Space = "d"
+
+			col := prop.CreateElement("collection")
+			col.Space = "d"
+
+		case "supported-report-set":
+			fillSupportedReportSetRoot(psRoot)
+
+		case "sync-token":
+			prop := psRoot.CreateElement("sync-token")
+			prop.Space = "d"
+			prop.SetText("https://swordlord.com/ns/sync/" + token)
+
+		default:
+			if name != "text" {
+				fmt.Println("CARD_AddressbookRoot-PF: not handled: " + name)
+			}
+		}
+	}
+}
+
+func fillPropfindResponseOnEachAddressbook(ms *etree.Element, sUser string, rowsADB []*model.ADB, propsQuery []*etree.Element) {
+
+	for _, row := range rowsADB {
+
+		psRoot := handler.AddResponseWStatusToMultistat(ms, "/cal/"+sUser+"/"+row.Pkey+"/", http.StatusOK)
+
+		for _, e := range propsQuery {
+
+			//fmt.Println(e.Tag)
+			name := e.Tag
+			switch name {
 
 			case "current-user-privilege-set":
-				fillCurrentUserPrivilegeSetRoot(psRoot, sUser)
+				fillCurrentUserPrivilegeSetADB(psRoot, sUser, row)
+
+			case "displayname": //>Addressbook</d:displayname>
+				//         <d:displayname>Addressbook</d:displayname>
+				prop := psRoot.CreateElement("displayname")
+				prop.Space = "d"
+
+				prop.SetText(row.Name)
+
+			case "max-resource-size": //>1048576</card:max-resource-size>
+				//        <card:max-resource-size>1048576</card:max-resource-size>
+				prop := psRoot.CreateElement("max-resource-size")
+				prop.Space = "card"
+
+				prop.SetText("1048576")
 
 			case "owner":
 				// 		<d:owner>
@@ -221,6 +290,7 @@ func fillPropfindResponseOnAddressbookRoot(psRoot *etree.Element, sUser string, 
 			case "resourcetype":
 				//         <d:resourcetype>
 				//          <d:collection/>
+				// 			<card:addressbook/>
 				//        </d:resourcetype>
 				prop := psRoot.CreateElement("resourcetype")
 				prop.Space = "d"
@@ -228,84 +298,16 @@ func fillPropfindResponseOnAddressbookRoot(psRoot *etree.Element, sUser string, 
 				col := prop.CreateElement("collection")
 				col.Space = "d"
 
+				addrb := prop.CreateElement("addressbook")
+				addrb.Space = "card"
+
 			case "supported-report-set":
-				fillSupportedReportSetRoot(psRoot)
+				fillSupportedReportSetADB(psRoot)
 
 			case "sync-token":
-			prop := psRoot.CreateElement("sync-token")
-			prop.Space = "d"
-			prop.SetText("https://github.com/swordlordcodingcrew/fennel/ns/sync/" + token)
-
-		default:
-			if name != "text" {
-				fmt.Println("CARD_AddressbookRoot-PF: not handled: " + name)
-			}
-		}
-	}
-}
-
-func fillPropfindResponseOnEachAddressbook(ms *etree.Element, sUser string, rowsADB []*model.ADB, propsQuery []*etree.Element) {
-
-	for _, row := range rowsADB{
-
-		psRoot := handler.AddResponseWStatusToMultistat(ms, "/cal/" + sUser + "/" + row.Pkey + "/", http.StatusOK)
-
-		for _, e := range propsQuery {
-
-			//fmt.Println(e.Tag)
-			name := e.Tag
-			switch (name) {
-
-				case "current-user-privilege-set":
-					fillCurrentUserPrivilegeSetADB(psRoot, sUser, row)
-
-				case "displayname": //>Addressbook</d:displayname>
-					//         <d:displayname>Addressbook</d:displayname>
-					prop := psRoot.CreateElement("displayname")
-					prop.Space = "d"
-
-					prop.SetText(row.Name)
-
-				case "max-resource-size": //>1048576</card:max-resource-size>
-					//        <card:max-resource-size>1048576</card:max-resource-size>
-					prop := psRoot.CreateElement("max-resource-size")
-					prop.Space = "card"
-
-					prop.SetText("1048576")
-
-				case "owner":
-					// 		<d:owner>
-					//          <d:href>/p/a3298271331/</d:href>
-					//        </d:owner>
-					prop := psRoot.CreateElement("owner")
-					prop.Space = "d"
-
-					href := prop.CreateElement("href")
-					href.Space = "d"
-
-					href.SetText("/p/" + sUser + "/")
-
-				case "resourcetype":
-					//         <d:resourcetype>
-					//          <d:collection/>
-					// 			<card:addressbook/>
-					//        </d:resourcetype>
-					prop := psRoot.CreateElement("resourcetype")
-					prop.Space = "d"
-
-					col := prop.CreateElement("collection")
-					col.Space = "d"
-
-					addrb := prop.CreateElement("addressbook")
-					addrb.Space = "card"
-
-				case "supported-report-set":
-					fillSupportedReportSetADB(psRoot)
-
-				case "sync-token":
-					prop := psRoot.CreateElement("sync-token")
-					prop.Space = "d"
-					prop.SetText("https://github.com/swordlordcodingcrew/fennel/ns/sync/" + strconv.Itoa(row.Synctoken))
+				prop := psRoot.CreateElement("sync-token")
+				prop.Space = "d"
+				prop.SetText("https://swordlord.com/ns/sync/" + strconv.Itoa(row.Synctoken))
 
 			default:
 				if name != "text" {
@@ -376,7 +378,7 @@ func fillCurrentUserPrivilegeStandardSet(ps *etree.Element) {
 	addPrivilege(cups, "d", "read-current-user-privilege-set")
 }
 
-func addPrivilege(cups *etree.Element, namespace string, elementName string){
+func addPrivilege(cups *etree.Element, namespace string, elementName string) {
 
 	p := cups.CreateElement("privilege")
 	p.Space = "d"
@@ -457,7 +459,7 @@ func fillSupportedReportSetADB(ps *etree.Element) {
 	addSupportedReportElement(srs, "d", "sync-collection")
 }
 
-func addSupportedReportElement(srs *etree.Element, namespace string, elementName string)  {
+func addSupportedReportElement(srs *etree.Element, namespace string, elementName string) {
 
 	sr := srs.CreateElement("supported-report")
 	sr.Space = "d"

@@ -1,11 +1,12 @@
 package calendar
+
 /*-----------------------------------------------------------------------------
  **
  ** - Fennel -
  **
  ** your lightweight CalDAV and CardDAV server
  **
- ** Copyright 2018 by SwordLord - the coding crew - http://www.github.com/swordlordcodingcrew/fennel
+ ** Copyright 2018 by SwordLord - the coding crew - http://www.swordlord.com
  ** and contributing authors
  **
  ** This program is free software; you can redistribute it and/or modify it
@@ -24,20 +25,21 @@ package calendar
  **-----------------------------------------------------------------------------
  **
  ** Original Authors:
- ** LordEidi@github.com/swordlordcodingcrew/fennel
- ** LordCelery@github.com/swordlordcodingcrew/fennel
+ ** LordEidi@swordlord.com
+ ** LordCelery@swordlord.com
  **
 -----------------------------------------------------------------------------*/
 
 import (
-	"net/http"
-	"github.com/swordlordcodingcrew/fennel/fenneld/handler"
-	"github.com/gorilla/mux"
-	"github.com/swordlordcodingcrew/fennel/fennelcore/db/tablemodule"
-	"github.com/beevik/etree"
 	"fmt"
-	"github.com/swordlordcodingcrew/fennel/fennelcore/db/model"
+	"net/http"
 	"strconv"
+
+	"github.com/beevik/etree"
+	"github.com/gorilla/mux"
+	"github.com/swordlordcodingcrew/fennel/fennelcore/db/model"
+	"github.com/swordlordcodingcrew/fennel/fennelcore/db/tablemodule"
+	"github.com/swordlordcodingcrew/fennel/fenneld/handler"
 )
 
 // TODO check if on root, if yes, answer differently
@@ -91,33 +93,33 @@ func PropfindRoot(w http.ResponseWriter, req *http.Request) {
 	handler.SendETreeDocument(w, http.StatusMultiStatus, dRet)
 }
 
-func PropfindUser(w http.ResponseWriter, req *http.Request){
+func PropfindUser(w http.ResponseWriter, req *http.Request) {
 
 	// TODO
 	handler.RespondWithMessage(w, http.StatusMultiStatus, "Not implemented yet")
 }
 
-func PropfindInbox(w http.ResponseWriter, req *http.Request){
+func PropfindInbox(w http.ResponseWriter, req *http.Request) {
 
 	dRet, propstat := handler.GetMultistatusDoc(req.RequestURI)
 
 	handler.SendMultiStatus(w, http.StatusOK, dRet, propstat)
 }
 
-func PropfindOutbox(w http.ResponseWriter, req *http.Request){
+func PropfindOutbox(w http.ResponseWriter, req *http.Request) {
 
 	// TODO
 	handler.RespondWithMessage(w, http.StatusMultiStatus, "Not implemented yet")
 }
 
-func PropfindNotification(w http.ResponseWriter, req *http.Request){
+func PropfindNotification(w http.ResponseWriter, req *http.Request) {
 
 	dRet, propstat := handler.GetMultistatusDoc(req.RequestURI)
 
 	handler.SendMultiStatus(w, http.StatusOK, dRet, propstat)
 }
 
-func PropfindCalendar(w http.ResponseWriter, req *http.Request){
+func PropfindCalendar(w http.ResponseWriter, req *http.Request) {
 
 	vars := mux.Vars(req)
 	sCal := vars["calendar"]
@@ -187,7 +189,7 @@ func fillPropfindResponse(node *etree.Element, user string, cal model.CAL, props
 
 		//fmt.Println(e.Tag)
 		name := e.Tag
-		switch(name) {
+		switch name {
 
 		//case "add-member":
 
@@ -222,7 +224,7 @@ func fillPropfindResponse(node *etree.Element, user string, cal model.CAL, props
 			co.SetText(strconv.Itoa(cal.Order))
 
 		case "calendar-timezone":
-			var timezone = cal.Timezone;
+			var timezone = cal.Timezone
 			// TODO check why here we had a replace
 			//timezone = timezone.replace(/\r\n|\r|\n/g,"&#13;\r\n");
 			//"<cal:calendar-timezone>" + timezone + "</cal:calendar-timezone>";
@@ -237,7 +239,7 @@ func fillPropfindResponse(node *etree.Element, user string, cal model.CAL, props
 			// <d:current-user-principal><d:href>/p/" + username + "/</d:href></d:current-user-principal>
 			cup := node.CreateElement("current-user-principal")
 			cup.Space = "d"
-			handler.AddURLElement(cup, "/p/" + user + "/")
+			handler.AddURLElement(cup, "/p/"+user+"/")
 
 			//case "default-alarm-vevent-date":
 			//case "default-alarm-vevent-datetime":
@@ -255,7 +257,7 @@ func fillPropfindResponse(node *etree.Element, user string, cal model.CAL, props
 			// "<d:owner><d:href>/p/" + user +"/</d:href></d:owner>"
 			o := node.CreateElement("owner")
 			o.Space = "d"
-			handler.AddURLElement(o, "/p/" + user + "/")
+			handler.AddURLElement(o, "/p/"+user+"/")
 
 		case "principal-collection-set":
 			//"<d:principal-collection-set><d:href>/p/</d:href></d:principal-collection-set>"
@@ -268,7 +270,7 @@ func fillPropfindResponse(node *etree.Element, user string, cal model.CAL, props
 			//"<cs:pre-publish-url><d:href>https://127.0.0.1/cal/" + user + "/" + cal.Pkey + "</d:href></cs:pre-publish-url>";
 			pcs := node.CreateElement("pre-publish-url")
 			pcs.Space = "cs"
-			handler.AddURLElement(pcs, "/cal/" + user + "/" + cal.Pkey)
+			handler.AddURLElement(pcs, "/cal/"+user+"/"+cal.Pkey)
 
 			//case "publish-url":
 			//case "push-transports":
@@ -315,7 +317,7 @@ func fillPropfindResponse(node *etree.Element, user string, cal model.CAL, props
 		case "getctag":
 			prop := node.CreateElement("getctag")
 			prop.Space = "cs"
-			prop.SetText("https://github.com/swordlordcodingcrew/fennel/ns/sync/" + token)
+			prop.SetText("https://swordlord.com/ns/sync/" + token)
 
 			//case "getetag":
 			// no response?
@@ -326,7 +328,7 @@ func fillPropfindResponse(node *etree.Element, user string, cal model.CAL, props
 		case "sync-token":
 			prop := node.CreateElement("sync-token")
 			prop.Space = "d"
-			prop.SetText("https://github.com/swordlordcodingcrew/fennel/ns/sync/" + token)
+			prop.SetText("https://swordlord.com/ns/sync/" + token)
 
 		case "acl":
 			getACL(node, user)
@@ -348,19 +350,19 @@ func fillPropfindResponse(node *etree.Element, user string, cal model.CAL, props
 func getCurrentUserPrivilegeSet(node *etree.Element) {
 
 	/*
-	response += "<d:current-user-privilege-set>";
-    response += "<d:privilege xmlns:d=\"DAV:\"><cal:read-free-busy/></d:privilege>";
-    response += "<d:privilege xmlns:d=\"DAV:\"><d:write/></d:privilege>";
-    response += "<d:privilege xmlns:d=\"DAV:\"><d:write-acl/></d:privilege>";
-    response += "<d:privilege xmlns:d=\"DAV:\"><d:write-content/></d:privilege>";
-    response += "<d:privilege xmlns:d=\"DAV:\"><d:write-properties/></d:privilege>";
-    response += "<d:privilege xmlns:d=\"DAV:\"><d:bind/></d:privilege>";
-    response += "<d:privilege xmlns:d=\"DAV:\"><d:unbind/></d:privilege>";
-    response += "<d:privilege xmlns:d=\"DAV:\"><d:unlock/></d:privilege>";
-    response += "<d:privilege xmlns:d=\"DAV:\"><d:read/></d:privilege>";
-    response += "<d:privilege xmlns:d=\"DAV:\"><d:read-acl/></d:privilege>";
-    response += "<d:privilege xmlns:d=\"DAV:\"><d:read-current-user-privilege-set/></d:privilege>";
-    response += "</d:current-user-privilege-set>";
+			response += "<d:current-user-privilege-set>";
+		    response += "<d:privilege xmlns:d=\"DAV:\"><cal:read-free-busy/></d:privilege>";
+		    response += "<d:privilege xmlns:d=\"DAV:\"><d:write/></d:privilege>";
+		    response += "<d:privilege xmlns:d=\"DAV:\"><d:write-acl/></d:privilege>";
+		    response += "<d:privilege xmlns:d=\"DAV:\"><d:write-content/></d:privilege>";
+		    response += "<d:privilege xmlns:d=\"DAV:\"><d:write-properties/></d:privilege>";
+		    response += "<d:privilege xmlns:d=\"DAV:\"><d:bind/></d:privilege>";
+		    response += "<d:privilege xmlns:d=\"DAV:\"><d:unbind/></d:privilege>";
+		    response += "<d:privilege xmlns:d=\"DAV:\"><d:unlock/></d:privilege>";
+		    response += "<d:privilege xmlns:d=\"DAV:\"><d:read/></d:privilege>";
+		    response += "<d:privilege xmlns:d=\"DAV:\"><d:read-acl/></d:privilege>";
+		    response += "<d:privilege xmlns:d=\"DAV:\"><d:read-current-user-privilege-set/></d:privilege>";
+		    response += "</d:current-user-privilege-set>";
 	*/
 
 	cups := node.CreateElement("current-user-privilege-set")
@@ -393,20 +395,20 @@ func addPrivilegeToPrivilegeSet(cups *etree.Element, namespace string, privilege
 func getSupportedReportSet(node *etree.Element, isRoot bool) {
 
 	/*
-	response += "<d:supported-report-set>";
+		response += "<d:supported-report-set>";
 
-	if(!isRoot)
-	{
-		response += "<d:supported-report><d:report><cal:calendar-multiget/></d:report></d:supported-report>";
-		response += "<d:supported-report><d:report><cal:calendar-query/></d:report></d:supported-report>";
-		response += "<d:supported-report><d:report><cal:free-busy-query/></d:report></d:supported-report>";
-	}
+		if(!isRoot)
+		{
+			response += "<d:supported-report><d:report><cal:calendar-multiget/></d:report></d:supported-report>";
+			response += "<d:supported-report><d:report><cal:calendar-query/></d:report></d:supported-report>";
+			response += "<d:supported-report><d:report><cal:free-busy-query/></d:report></d:supported-report>";
+		}
 
-	response += "<d:supported-report><d:report><d:sync-collection/></d:report></d:supported-report>";
-	response += "<d:supported-report><d:report><d:expand-property/></d:report></d:supported-report>";
-	response += "<d:supported-report><d:report><d:principal-property-search/></d:report></d:supported-report>";
-	response += "<d:supported-report><d:report><d:principal-search-property-set/></d:report></d:supported-report>";
-	response += "</d:supported-report-set>";
+		response += "<d:supported-report><d:report><d:sync-collection/></d:report></d:supported-report>";
+		response += "<d:supported-report><d:report><d:expand-property/></d:report></d:supported-report>";
+		response += "<d:supported-report><d:report><d:principal-property-search/></d:report></d:supported-report>";
+		response += "<d:supported-report><d:report><d:principal-search-property-set/></d:report></d:supported-report>";
+		response += "</d:supported-report-set>";
 	*/
 	srs := node.CreateElement("supported-report-set")
 	srs.Space = "d"
@@ -439,66 +441,66 @@ func addSupportedReport(srs *etree.Element, report string) {
 func getACL(node *etree.Element, user string) {
 
 	/*
-	    response += "<d:acl>";
-    response += "    <d:ace>";
-    response += "        <d:principal><d:href>/p/" + username + "</d:href></d:principal>";
-    response += "        <d:grant><d:privilege><d:read/></d:privilege></d:grant>";
-    response += "        <d:protected/>";
-    response += "    </d:ace>";
+			    response += "<d:acl>";
+		    response += "    <d:ace>";
+		    response += "        <d:principal><d:href>/p/" + username + "</d:href></d:principal>";
+		    response += "        <d:grant><d:privilege><d:read/></d:privilege></d:grant>";
+		    response += "        <d:protected/>";
+		    response += "    </d:ace>";
 
-    response += "    <d:ace>";
-    response += "        <d:principal><d:href>/p/" + username + "</d:href></d:principal>";
-    response += "        <d:grant><d:privilege><d:write/></d:privilege></d:grant>";
-    response += "        <d:protected/>";
-    response += "    </d:ace>";
+		    response += "    <d:ace>";
+		    response += "        <d:principal><d:href>/p/" + username + "</d:href></d:principal>";
+		    response += "        <d:grant><d:privilege><d:write/></d:privilege></d:grant>";
+		    response += "        <d:protected/>";
+		    response += "    </d:ace>";
 
-    response += "    <d:ace>";
-    response += "        <d:principal><d:href>/p/" + username + "/calendar-proxy-write/</d:href></d:principal>";
-    response += "        <d:grant><d:privilege><d:read/></d:privilege></d:grant>";
-    response += "        <d:protected/>";
-    response += "    </d:ace>";
+		    response += "    <d:ace>";
+		    response += "        <d:principal><d:href>/p/" + username + "/calendar-proxy-write/</d:href></d:principal>";
+		    response += "        <d:grant><d:privilege><d:read/></d:privilege></d:grant>";
+		    response += "        <d:protected/>";
+		    response += "    </d:ace>";
 
-    response += "    <d:ace>";
-    response += "        <d:principal><d:href>/p/" + username + "/calendar-proxy-write/</d:href></d:principal>";
-    response += "        <d:grant><d:privilege><d:write/></d:privilege></d:grant>";
-    response += "        <d:protected/>";
-    response += "    </d:ace>";
+		    response += "    <d:ace>";
+		    response += "        <d:principal><d:href>/p/" + username + "/calendar-proxy-write/</d:href></d:principal>";
+		    response += "        <d:grant><d:privilege><d:write/></d:privilege></d:grant>";
+		    response += "        <d:protected/>";
+		    response += "    </d:ace>";
 
-    response += "    <d:ace>";
-    response += "        <d:principal><d:href>/p/" + username + "/calendar-proxy-read/</d:href></d:principal>";
-    response += "        <d:grant><d:privilege><d:read/></d:privilege></d:grant>";
-    response += "        <d:protected/>";
-    response += "    </d:ace>";
+		    response += "    <d:ace>";
+		    response += "        <d:principal><d:href>/p/" + username + "/calendar-proxy-read/</d:href></d:principal>";
+		    response += "        <d:grant><d:privilege><d:read/></d:privilege></d:grant>";
+		    response += "        <d:protected/>";
+		    response += "    </d:ace>";
 
-    response += "    <d:ace>";
-    response += "        <d:principal><d:authenticated/></d:principal>";
-    response += "        <d:grant><d:privilege><cal:read-free-busy/></d:privilege></d:grant>";
-    response += "        <d:protected/>";
-    response += "    </d:ace>";
+		    response += "    <d:ace>";
+		    response += "        <d:principal><d:authenticated/></d:principal>";
+		    response += "        <d:grant><d:privilege><cal:read-free-busy/></d:privilege></d:grant>";
+		    response += "        <d:protected/>";
+		    response += "    </d:ace>";
 
-    response += "    <d:ace>";
-    response += "        <d:principal><d:href>/p/system/admins/</d:href></d:principal>";
-    response += "        <d:grant><d:privilege><d:all/></d:privilege></d:grant>";
-    response += "        <d:protected/>";
-    response += "    </d:ace>";
-*/
+		    response += "    <d:ace>";
+		    response += "        <d:principal><d:href>/p/system/admins/</d:href></d:principal>";
+		    response += "        <d:grant><d:privilege><d:all/></d:privilege></d:grant>";
+		    response += "        <d:protected/>";
+		    response += "    </d:ace>";
+	*/
 	acl := node.CreateElement("acl")
 	acl.Space = "d"
 
-	addACEwURL(acl, "/p/" + user, "read")
-	addACEwURL(acl, "/p/" + user, "write")
+	addACEwURL(acl, "/p/"+user, "read")
+	addACEwURL(acl, "/p/"+user, "write")
 
-	addACEwURL(acl, "/p/" + user + "/calendar-proxy-write/", "read")
-	addACEwURL(acl, "/p/" + user + "/calendar-proxy-write/", "write")
+	addACEwURL(acl, "/p/"+user+"/calendar-proxy-write/", "read")
+	addACEwURL(acl, "/p/"+user+"/calendar-proxy-write/", "write")
 
-	addACEwURL(acl, "/p/" + user + "/calendar-proxy-read/", "read")
+	addACEwURL(acl, "/p/"+user+"/calendar-proxy-read/", "read")
 
 	addACEFreeBusy(acl)
 
 	addACEwURL(acl, "/p/system/admins/", "all")
 }
 
-func addACEwURL(acl *etree.Element, url string, privilege string)  {
+func addACEwURL(acl *etree.Element, url string, privilege string) {
 
 	//    <d:ace>";
 	//        <d:principal><d:href>/p/" + username + "</d:href></d:principal>";
@@ -529,7 +531,7 @@ func addACEwURL(acl *etree.Element, url string, privilege string)  {
 	prot.Space = "d"
 }
 
-func addACEFreeBusy(acl *etree.Element)  {
+func addACEFreeBusy(acl *etree.Element) {
 
 	//    <d:ace>";
 	//        <d:principal><d:authenticated/></d:principal>";
