@@ -19,3 +19,9 @@ mod:
 
 clean:
 	rm -rf bin/*
+
+install:
+	cp bin/* /usr/local/bin
+
+uninstall:
+	rm /usr/local/bin/fenneld /usr/local/bin/fennelcli

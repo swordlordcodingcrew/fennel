@@ -153,7 +153,7 @@ func SendMultiStatus(w http.ResponseWriter, httpStatus int, dRet *etree.Document
 
 func SendETreeDocument(w http.ResponseWriter, status int, dRet *etree.Document) {
 
-	SetStandardHTMLHeader(w)
+	SetStandardXMLHeader(w)
 	SetDAVHeader(w)
 	SetAllowHeader(w)
 

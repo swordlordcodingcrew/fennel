@@ -187,7 +187,7 @@ func fillPropfindResponse(node *etree.Element, user string, cal model.CAL, props
 
 	for _, e := range props {
 
-		//fmt.Println(e.Tag)
+		// fmt.Println(e.Tag)
 		name := e.Tag
 		switch name {
 
@@ -303,7 +303,7 @@ func fillPropfindResponse(node *etree.Element, user string, cal model.CAL, props
 			//case "subscribed-strip-todos":
 			//case "supported-calendar-component-set":
 
-		case "supported-calendar-component-sets":
+		case "supported-calendar-component-set":
 			// "<cal:supported-calendar-component-set><cal:comp name=\"VEVENT\"/></cal:supported-calendar-component-set>";
 			scc := node.CreateElement("supported-calendar-component-set")
 			scc.Space = "cal"

@@ -216,7 +216,7 @@ func fillPropfindResponse(node *etree.Element, props []*etree.Element, sUser str
 
 		default:
 			if name != "text" {
-				fmt.Println("CAL-PF: not handled: " + name)
+				fmt.Println("PRINCIPAL-PF: not handled: " + name)
 			}
 		}
 	}
