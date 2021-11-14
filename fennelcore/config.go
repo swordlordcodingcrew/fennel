@@ -30,89 +30,14 @@ package fennelcore
  **
 -----------------------------------------------------------------------------*/
 import (
-	"github.com/fsnotify/fsnotify"
-	"github.com/spf13/viper"
-	"io/ioutil"
+	"bytes"
+	"flag"
 	"log"
+
+	"github.com/spf13/viper"
 )
 
-func InitConfig() {
-
-	// Note: Viper does not require any initialization before using, unless we'll be dealing multiple different configurations.
-	// check [working with multiple vipers](https://github.com/spf13/viper#working-with-multiple-vipers)
-
-	// Set config file we want to read. 2 ways to do this.
-	// 1. Set config file path including file name and extension
-	//viper.SetConfigFile("./configs/config.json")
-
-	// OR
-	// 2. Register path to look for config files in. It can accept multiple paths.
-	// It will search these paths in given order
-	viper.AddConfigPath(".")
-	viper.AddConfigPath("$HOME")
-	// And then register config file name (no extension)
-	viper.SetConfigName("fennel.config")
-	// Optionally we can set specific config type
-	viper.SetConfigType("json")
-
-	// viper allows watching of config files for changes (and potential reloads)
-	viper.WatchConfig()
-	viper.OnConfigChange(func(e fsnotify.Event) {
-		//	fmt.Println("Config file changed:", e.Name)
-	})
-
-	// Find and read the config file
-	if err := viper.ReadInConfig(); err != nil {
-
-		// TODO: don't just overwrite, check for existence first, then write a standard config file and move on...
-		WriteStandardConfig()
-
-		if err := viper.ReadInConfig(); err != nil {
-			// we tried it once, crash now
-			log.Fatalf("Error reading config file, %s", err)
-		}
-	}
-
-	// Confirm which config file is used
-	// fmt.Printf("Using config: %s\n", viper.ConfigFileUsed())
-
-	// Confirm which config file is used
-	// fmt.Printf("Env set to: %s\n", env)
-
-	//EnsureTemplateFilesExist()
-}
-
-func GetBoolFromConfig(key string) bool {
-
-	return viper.GetBool(key)
-}
-
-func GetStringFromConfig(key string) string {
-
-	return viper.GetString(key)
-}
-
-func GetLogLevel() string {
-
-	loglevel := viper.GetString("log.level")
-	if loglevel == "" {
-
-		return "warn"
-	} else {
-
-		return loglevel
-	}
-}
-
-//
-func WriteStandardConfig() error {
-
-	err := ioutil.WriteFile("fennel.config.json", defaultConfig, 0700)
-
-	return err
-}
-
-var defaultConfig = []byte(`
+var defaultConfig = `
 {
   "log": {
     "level": "debug"
@@ -129,9 +54,56 @@ var defaultConfig = []byte(`
     "templates": "templates"
   },
   "db": {
-    "dialect": "sqlite3",
+    "dialect": "sqlite",
     "args": "fennel.db",
     "logmode": "true"
   }
 }
-`)
+`
+
+func InitConfig() {
+	configOverride := flag.String("config", "", "Configuration file path (Optional, will read from standard config locations otherwise)")
+	flag.Parse()
+	if *configOverride != "" {
+		viper.SetConfigFile(*configOverride)
+	} else {
+		viper.SetConfigName("fennel")
+		viper.AddConfigPath(".")
+		viper.AddConfigPath("$HOME/.config/fennel")
+		viper.AddConfigPath("$HOME/.config")
+		viper.AddConfigPath("/etc/fennel")
+		viper.AddConfigPath("/etc")
+	}
+
+	// Find and read the config file
+	if err := viper.ReadInConfig(); err != nil {
+		log.Printf("Error reading config %v\n Falling back to default %v", err, defaultConfig)
+		viper.SetConfigType("json")
+		err = viper.ReadConfig(bytes.NewBuffer([]byte(defaultConfig)))
+		if err != nil {
+			log.Fatal(err)
+		}
+	}
+
+	// Confirm which config file is used
+	log.Printf("config read from: %s\n", viper.ConfigFileUsed())
+}
+
+func GetBoolFromConfig(key string) bool {
+	return viper.GetBool(key)
+}
+
+func GetStringFromConfig(key string) string {
+	return viper.GetString(key)
+}
+
+func GetLogLevel() string {
+	loglevel := viper.GetString("log.level")
+	if loglevel == "" {
+		return "warn"
+	} else {
+
+		return loglevel
+	}
+}
+
