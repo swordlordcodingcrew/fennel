@@ -128,7 +128,7 @@ func UpdateUser(name string, password string, comment string) error {
 	// we can set w/o checking if empty, for GORM will only update non-empty fields
 	user.Comment = comment
 
-	retDB := db.Model(&user).Where("name=?", name).Update(&user)
+	retDB := db.Model(&user).Where("name=?", name).Updates(&user)
 	if retDB.Error != nil {
 		log.Printf("Error with User %q: %s\n", name, retDB.Error)
 		return retDB.Error

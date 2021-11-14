@@ -31,7 +31,7 @@ package model
 -----------------------------------------------------------------------------*/
 
 import (
-	"github.com/jinzhu/gorm"
+	"gorm.io/gorm"
 	"time"
 )
 
@@ -45,16 +45,12 @@ type ICS struct {
 	UpdDat     time.Time `sql:"DEFAULT:current_timestamp"`
 }
 
-func (m *ICS) BeforeUpdate(scope *gorm.Scope) (err error) {
-
-	scope.SetColumn("UpdDat", time.Now())
-	return nil
+func (m *ICS) BeforeCreate(tx *gorm.DB) (err error) {
+    m.CrtDat = time.Now()
+    return nil
 }
 
-/*
-func (u *User) BeforeSave(scope *gorm.Scope) (err error) {
-
-	scope.SetColumn("upddat", time.Now())
+func (m *ICS) BeforeSave(scope *gorm.DB) (err error) {
+    m.UpdDat = time.Now()
 	return nil
 }
-*/

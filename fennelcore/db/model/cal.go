@@ -31,7 +31,7 @@ package model
 -----------------------------------------------------------------------------*/
 
 import (
-	"github.com/jinzhu/gorm"
+	"gorm.io/gorm"
 	"time"
 )
 
@@ -49,16 +49,14 @@ type CAL struct {
 	UpdDat                time.Time `sql:"DEFAULT:current_timestamp"`
 }
 
-func (m *CAL) BeforeUpdate(scope *gorm.Scope) (err error) {
-
-	scope.SetColumn("UpdDat", time.Now())
+func (m *CAL) BeforeCreate(tx *gorm.DB) (err error) {
+    m.CrtDat = time.Now()
 	return nil
 }
 
-/*
-func (u *User) BeforeSave(scope *gorm.Scope) (err error) {
 
-	scope.SetColumn("upddat", time.Now())
+func (u *CAL) BeforeSave(tx *gorm.DB) (err error) {
+    u.UpdDat = time.Now()
 	return nil
 }
-*/
+

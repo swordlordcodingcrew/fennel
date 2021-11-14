@@ -30,38 +30,46 @@ package fennelcore
  **
 -----------------------------------------------------------------------------*/
 import (
-	"github.com/jinzhu/gorm"
-	_ "github.com/jinzhu/gorm/dialects/sqlite"
-	"github.com/swordlordcodingcrew/fennel/fennelcore/db/model"
 	"log"
+
+	"github.com/swordlordcodingcrew/fennel/fennelcore/db/model"
+	"gorm.io/driver/mysql"
+	"gorm.io/driver/postgres"
+	"gorm.io/driver/sqlite"
+	"gorm.io/gorm"
+	"gorm.io/gorm/schema"
 )
 
 var db gorm.DB
 
 //
 func InitDatabase() {
-
 	dialect := GetStringFromConfig("db.dialect")
 	args := GetStringFromConfig("db.args")
-	activateLog := GetBoolFromConfig("db.logmode")
-
-	database, err := gorm.Open(dialect, args)
+	var dialector gorm.Dialector
+	switch dialect {
+	case "sqlite":
+		dialector = sqlite.Open(args)
+	case "postgres":
+		dialector = postgres.Open(args)
+	case "mysql":
+		dialector = mysql.Open(args)
+	default:
+		log.Fatalf("Unsupported database dialect %v", dialect)
+	}
+	
+	database, err := gorm.Open(dialector, &gorm.Config{
+		NamingStrategy: schema.NamingStrategy{
+			TablePrefix: "fen_", // Avoid naming collisions with reserved tables like 'user'
+			SingularTable: true,
+		},
+	})
 	if err != nil {
 		log.Fatalf("failed to connect database, %s", err)
 		panic("failed to connect database")
 	}
 
-	gorm.DefaultCallback.Update().Register("update_upd_dat", updateCreated)
-
 	db = *database
-
-	db.SingularTable(true)
-
-	if activateLog {
-
-		db.LogMode(true)
-	}
-
 	db.AutoMigrate(&model.User{})
 	db.AutoMigrate(&model.Group{})
 	db.AutoMigrate(&model.UserGroup{})
@@ -72,25 +80,12 @@ func InitDatabase() {
 	db.AutoMigrate(&model.VCARD{})
 }
 
-func updateCreated(scope *gorm.Scope) {
-
-	/*
-		log.Println("updatecreated")
-
-		if scope.HasColumn("UpdDat") {
-			scope.SetColumn("UpdDat", time.Now())
-		}
-	*/
-}
-
 //
 func CloseDB() {
-
-	db.Close()
+	// db.Close()
 }
 
 //
 func GetDB() *gorm.DB {
-
 	return &db
 }
