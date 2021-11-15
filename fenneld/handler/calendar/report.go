@@ -83,15 +83,17 @@ func handleReportCalendarQuery(w http.ResponseWriter, uri string, nodeQuery *etr
 
 	dRet, ms := handler.GetMultistatusDocWOResponseTag()
 
-	cal, err := tablemodule.GetCal(sCalId)
-	if err != nil {
+	if sCalId != "" {
+		_, err := tablemodule.GetCal(sCalId)
+		if err != nil {
 
-		fmt.Println(err)
+			fmt.Println(err)
 
-		propstat := handler.AddResponseToMultistat(ms, uri)
+			propstat := handler.AddResponseToMultistat(ms, uri)
 
-		handler.SendMultiStatus(w, http.StatusNotFound, dRet, propstat)
-		return
+			handler.SendMultiStatus(w, http.StatusNotFound, dRet, propstat)
+			return
+		}
 	}
 
 	props := nodeQuery.FindElements("./prop/*")
@@ -143,9 +145,14 @@ func handleReportCalendarQuery(w http.ResponseWriter, uri string, nodeQuery *etr
 	}
 
 	rows, err := tablemodule.FindIcsByTimeslot(sCalId, dtmStart, dtmEnd)
+	if err != nil {
+		handler.RespondWithMessage(w, 500, err.Error())
+		return
+	}
 	for _, row := range rows {
-
-		appendIcsAsResponseToMultistat(ms, row, props, uri, cal.SupportedCalComponent)
+		// TODO "VEVENT" is hard coded becuase it seems it should come from cal.SupportCalComponent, which is always 
+		// set to VEVENT right now.
+		appendIcsAsResponseToMultistat(ms, row, props, uri, "VEVENT")
 	}
 
 	handler.SendETreeDocument(w, http.StatusMultiStatus, dRet)

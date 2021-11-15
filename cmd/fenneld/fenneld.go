@@ -102,6 +102,7 @@ func main() {
 	srCal.HandleFunc("/{user:[0-9a-zA-Z-]+}/notifications/", calendar.PropfindNotification).Methods("PROPFIND")
 	srCal.HandleFunc("/{user:[0-9a-zA-Z-]+}/{calendar:[0-9a-zA-Z-]+}/", calendar.PropfindCalendar).Methods("PROPFIND")
 
+	srCal.HandleFunc("/{user:[0-9a-zA-Z-]+}/", calendar.Report).Methods("REPORT")
 	srCal.HandleFunc("/{user:[0-9a-zA-Z-]+}/{calendar:[0-9a-zA-Z-]+}/", calendar.Report).Methods("REPORT")
 
 	// ******************* ADDRESSBOOK
