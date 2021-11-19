@@ -60,7 +60,7 @@ func InitDatabase() {
 	
 	database, err := gorm.Open(dialector, &gorm.Config{
 		NamingStrategy: schema.NamingStrategy{
-			TablePrefix: "fen_", // Avoid naming collisions with reserved tables like 'user'
+			TablePrefix: "fnl_", // Avoid naming collisions with reserved tables like 'user'
 			SingularTable: true,
 		},
 	})
