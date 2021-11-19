@@ -32,7 +32,6 @@ package handler
 import (
 	"fmt"
 	"net/http"
-	//	"github.com/swordlordcodingcrew/fennel/fenneld/render"
 	"github.com/beevik/etree"
 )
 
