@@ -37,7 +37,16 @@ What's missing:
 
 ## Installation ##
 
-We will provide binary packages later (when we get Travis CI up and running). For now, please compile yourself.
+### From source ###
+
+Dependencies: [golang](https://golang.org/dl/), [GNU Make](https://www.gnu.org/software/make/)
+
+```
+git clone https://github.com/swordlordcodingcrew/fennel
+cd fennel
+make
+```
+Executables fenneld and fennelcli are built into the bin/ folder.
 
 ### How to set up transport security ###
 
