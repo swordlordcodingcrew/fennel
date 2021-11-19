@@ -3,7 +3,7 @@ Fennel
 
 ![Fennel](https://raw.github.com/swordlordcodingcrew/fennel/master/fennel_logo.png)
 
-**Fennel** (c) 2014-19 by [SwordLord - the coding crew](http://www.swordlord.com/)
+**Fennel** (c) 2014-21 by [SwordLord - the coding crew](http://www.swordlord.com/)
 
 ## Introduction ##
 
@@ -123,7 +123,7 @@ options.
 
 If you happen to know how to write Go, documentation or can help out with something else, drop us a note at *contact at swordlord dot com*. As more helping hands we have, as quicker this server gets up and feature complete.
 
-If some feature is missing, just remember that this is an Open Source Project. If you need something, think about contributing it yourself...
+If some feature is missing, just remember that this is an Open Source Project. If you need something, think about contributing it yourself, pull requests welcome...
 
 ## Dependencies ##
 
