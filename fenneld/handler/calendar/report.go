@@ -150,9 +150,7 @@ func handleReportCalendarQuery(w http.ResponseWriter, uri string, nodeQuery *etr
 		return
 	}
 	for _, row := range rows {
-		// TODO "VEVENT" is hard coded becuase it seems it should come from cal.SupportCalComponent, which is always 
-		// set to VEVENT right now.
-		appendIcsAsResponseToMultistat(ms, row, props, uri, "VEVENT")
+		appendIcsAsResponseToMultistat(ms, row, props, uri, row.Calendar.SupportedCalComponent)
 	}
 
 	handler.SendETreeDocument(w, http.StatusMultiStatus, dRet)

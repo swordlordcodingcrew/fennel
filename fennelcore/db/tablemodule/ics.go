@@ -121,7 +121,7 @@ func AddIcs(calId string, user string, calendar string, content string) (model.I
 
 	ics := model.ICS{Pkey: calId}
 
-	ics.CalendarId = calendar
+	ics.CalendarID = calendar
 
 	err := parseDatesAndFill(json, &ics)
 	if err != nil {
@@ -232,7 +232,7 @@ func FindIcsByTimeslot(calID string, start *time.Time, end *time.Time) ([]*model
 
 	var rows []*model.ICS
 
-	retDB := db.Find(&rows)
+	retDB := db.Preload("Calendar").Find(&rows)
 
 	if retDB.Error != nil {
 		log.Printf("Error with loading ICS %s\n", retDB.Error)

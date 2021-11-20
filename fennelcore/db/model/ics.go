@@ -36,21 +36,22 @@ import (
 )
 
 type ICS struct {
-	Pkey       string    `gorm:"primary_key"`
-	CalendarId string    `sql:"NOT NULL"`
-	StartDate  time.Time `sql:"NOT NULL; DEFAULT:current_timestamp"`
-	EndDate    time.Time `sql:"NOT NULL; DEFAULT:current_timestamp"`
-	Content    string    `sql:"type:blob"`
-	CrtDat     time.Time `sql:"DEFAULT:current_timestamp"`
-	UpdDat     time.Time `sql:"DEFAULT:current_timestamp"`
+	Pkey       string `gorm:"primary_key"`
+	CalendarID string `gorm:"NOT NULL"`
+	Calendar   CAL
+	StartDate  time.Time `gorm:"NOT NULL; DEFAULT:current_timestamp"`
+	EndDate    time.Time `gorm:"NOT NULL; DEFAULT:current_timestamp"`
+	Content    string    
+	CrtDat     time.Time `gorm:"DEFAULT:current_timestamp"`
+	UpdDat     time.Time `gorm:"DEFAULT:current_timestamp"`
 }
 
 func (m *ICS) BeforeCreate(tx *gorm.DB) (err error) {
-    m.CrtDat = time.Now()
-    return nil
+	m.CrtDat = time.Now()
+	return nil
 }
 
 func (m *ICS) BeforeSave(scope *gorm.DB) (err error) {
-    m.UpdDat = time.Now()
+	m.UpdDat = time.Now()
 	return nil
 }
